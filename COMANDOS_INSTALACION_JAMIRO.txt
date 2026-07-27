@@ -1,0 +1,95 @@
+TALLER AUTOMOTRIZ JAMIRO - INSTALACION EN WINDOWS
+=================================================
+
+REQUISITOS
+----------
+1. Tener instalado Node.js 22 o una versión superior.
+2. Tener instalado Visual Studio Code.
+
+
+OPCION RECOMENDADA: USAR EL PROYECTO DESCARGABLE
+------------------------------------------------
+1. Descargá y descomprimí TALLER_AUTOMOTRIZ_JAMIRO_CODIGO.zip.
+2. Abrí PowerShell dentro de la carpeta descomprimida.
+3. Ejecutá:
+
+npm install
+npm run dev
+
+4. Abrí en el navegador la dirección que aparezca en la terminal,
+   normalmente:
+
+http://localhost:5173
+
+
+COMANDOS PARA CREAR LA CARPETA MANUALMENTE
+------------------------------------------
+Abrí PowerShell en la ubicación donde querés guardar el proyecto:
+
+mkdir taller-automotriz-jamiro
+cd taller-automotriz-jamiro
+code .
+
+Después copiá dentro de esa carpeta el contenido del ZIP y ejecutá:
+
+npm install
+npm run dev
+
+
+ESTRUCTURA PRINCIPAL DEL PROYECTO
+--------------------------------
+taller-automotriz-jamiro/
+|-- app/
+|   |-- globals.css
+|   |-- layout.tsx
+|   `-- page.tsx
+|-- public/
+|   `-- logo-jamiro.png
+|-- scripts/
+|-- tests/
+|-- worker/
+|-- package.json
+|-- package-lock.json
+|-- tsconfig.json
+|-- vite.config.ts
+`-- README.md
+
+
+COMANDOS DE TRABAJO DIARIO
+--------------------------
+Entrar al proyecto:
+
+cd taller-automotriz-jamiro
+
+Abrirlo en VS Code:
+
+code .
+
+Encender la página:
+
+npm run dev
+
+Crear una versión de producción:
+
+npm run build
+
+
+COMANDOS PARA SUBIRLO A GITHUB
+------------------------------
+Ejecutalos después de crear un repositorio vacío en GitHub:
+
+git init
+git add .
+git commit -m "Primera version Taller Automotriz Jamiro"
+git branch -M main
+git remote add origin URL_DE_TU_REPOSITORIO
+git push -u origin main
+
+Reemplazá URL_DE_TU_REPOSITORIO por la dirección que te entregue GitHub.
+
+
+NOTA
+----
+Esta es la primera versión visual y funcional de la landing page.
+El carrito y la cotización simulan el recorrido del cliente; todavía no
+guardan pedidos ni cotizaciones en una base de datos.
