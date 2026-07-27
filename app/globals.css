@@ -277,3 +277,16 @@ footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: cent
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; }
 }
+
+nav a.active { color: #fff; }
+.page-section { min-height: calc(100vh - 158px); padding-top: 150px; }
+.home-directory { background: radial-gradient(circle at 80% 0%, rgba(226,13,24,.1), transparent 36%), #070707; }
+.directory-grid { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 14px; }
+.directory-grid > a { min-height: 270px; padding: 28px 24px; border: 1px solid var(--line); border-radius: 22px; background: linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018)); color: #fff; text-decoration: none; display: flex; flex-direction: column; transition: transform .25s,border-color .25s,background .25s; }
+.directory-grid > a:hover { transform: translateY(-7px); border-color: rgba(226,13,24,.65); background: linear-gradient(145deg,rgba(226,13,24,.13),rgba(255,255,255,.025)); }
+.directory-grid span { color: var(--red); font-size: .76rem; font-weight: 700; letter-spacing: .12em; }
+.directory-grid h3 { margin: auto 0 12px; font-size: 1.25rem; }
+.directory-grid p { margin: 0 0 24px; color: var(--muted); line-height: 1.55; }
+.directory-grid b { font-size: .84rem; }
+@media (max-width: 1050px) { .directory-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 720px) { .page-section { padding-top: 118px; } .directory-grid { grid-template-columns: 1fr; } .directory-grid > a { min-height: 220px; } }

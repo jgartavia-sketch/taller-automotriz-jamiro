@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const services = [
   { icon: "⚡", title: "Electromecánica", text: "Diagnóstico preciso y soluciones para sistemas eléctricos y electrónicos." },
@@ -17,6 +19,13 @@ const products = [
 ];
 
 export default function Home() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const isRegistration = pathname === "/registro";
+  const isServices = pathname === "/servicios";
+  const isShop = pathname === "/tienda";
+  const isAbout = pathname === "/nosotros";
+  const isContact = pathname === "/contacto";
   const [cart, setCart] = useState<number[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
@@ -56,18 +65,18 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="Taller Automotriz Jamiro, inicio">
+        <Link className="brand" href="/" aria-label="Taller Automotriz Jamiro, inicio">
           <img src="/logo-jamiro-v2.svg" alt="Taller Automotriz Jamiro" />
           <span><strong>Taller Automotriz</strong>Jamiro</span>
-        </a>
+        </Link>
 
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">☰</button>
         <nav className={menuOpen ? "nav-open" : ""}>
-          <a href="#registro" onClick={() => setMenuOpen(false)}>Registro</a>
-          <a href="#servicios" onClick={() => setMenuOpen(false)}>Servicios</a>
-          <a href="#tienda" onClick={() => setMenuOpen(false)}>Tienda</a>
-          <a href="#nosotros" onClick={() => setMenuOpen(false)}>Nosotros</a>
-          <a href="#contacto" onClick={() => setMenuOpen(false)}>Contacto</a>
+          <Link className={isRegistration ? "active" : ""} href="/registro" onClick={() => setMenuOpen(false)}>Registro</Link>
+          <Link className={isServices ? "active" : ""} href="/servicios" onClick={() => setMenuOpen(false)}>Servicios</Link>
+          <Link className={isShop ? "active" : ""} href="/tienda" onClick={() => setMenuOpen(false)}>Tienda</Link>
+          <Link className={isAbout ? "active" : ""} href="/nosotros" onClick={() => setMenuOpen(false)}>Nosotros</Link>
+          <Link className={isContact ? "active" : ""} href="/contacto" onClick={() => setMenuOpen(false)}>Contacto</Link>
         </nav>
 
         <div className="header-actions">
@@ -78,7 +87,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="hero" id="inicio">
+      {isHome && <section className="hero" id="inicio">
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-glow" aria-hidden="true" />
         <div className="hero-copy">
@@ -89,7 +98,7 @@ export default function Home() {
           </p>
           <div className="hero-actions">
             <button className="button" onClick={() => setQuoteOpen(true)}>Solicitar cotización <b>→</b></button>
-            <a className="button button-ghost" href="#tienda">Explorar tienda</a>
+            <Link className="button button-ghost" href="/tienda">Explorar tienda</Link>
           </div>
           <div className="trust-row">
             <span><b>✓</b> Calidad garantizada</span>
@@ -109,16 +118,30 @@ export default function Home() {
             <div><strong>Diagnóstico confiable</strong><small>Antes de reparar, te explicamos.</small></div>
           </div>
         </div>
-      </section>
+      </section>}
 
-      <section className="metrics" aria-label="Ventajas del taller">
+      {isHome && <section className="metrics" aria-label="Ventajas del taller">
         <div><strong>16 años</strong><span>de experiencia</span></div>
         <div><strong>Atención</strong><span>clara y profesional</span></div>
         <div><strong>Técnicos</strong><span>especializados</span></div>
         <div><strong>Calidad</strong><span>garantizada</span></div>
-      </section>
+      </section>}
 
-      <section className="section loyalty" id="registro">
+      {isHome && <section className="section home-directory">
+        <div className="section-heading">
+          <div><p className="eyebrow"><span /> Todo Jamiro</p><h2>Elegí tu próxima parada.</h2></div>
+          <p>Cada área tiene ahora su propio espacio para que encontrés lo que necesitás sin recorrer una página interminable.</p>
+        </div>
+        <div className="directory-grid">
+          <Link href="/registro"><span>01</span><h3>Club Jamiro</h3><p>Creá tu tarjeta, consultá puntos y compartí códigos de referido.</p><b>Ir a Registro →</b></Link>
+          <Link href="/servicios"><span>02</span><h3>Servicios</h3><p>Conocé el proceso y las soluciones disponibles para tu vehículo.</p><b>Ver servicios →</b></Link>
+          <Link href="/tienda"><span>03</span><h3>Tienda</h3><p>Explorá productos y servicios listos para agregar a tu pedido.</p><b>Entrar a la tienda →</b></Link>
+          <Link href="/nosotros"><span>04</span><h3>Nosotros</h3><p>Conocé la experiencia que respalda cada trabajo.</p><b>Conocer Jamiro →</b></Link>
+          <Link href="/contacto"><span>05</span><h3>Contacto</h3><p>Cotizá, escribinos por WhatsApp o encontrá el taller.</p><b>Hablemos →</b></Link>
+        </div>
+      </section>}
+
+      {isRegistration && <section className="section loyalty page-section" id="registro">
         <div className="section-heading">
           <div>
             <p className="eyebrow"><span /> Club Jamiro</p>
@@ -196,9 +219,9 @@ export default function Home() {
           <div><span>02</span><strong>Invitá con un código</strong><p>Cada código es único, vence en tres días y funciona una sola vez.</p></div>
           <div><span>03</span><strong>Tu red también suma</strong><p>Ganás puntos cuando tus referidos compran o visitan el taller.</p></div>
         </div>
-      </section>
+      </section>}
 
-      <section className="section services" id="servicios">
+      {isServices && <section className="section services page-section" id="servicios">
         <div className="process-inside">
           <div className="section-heading centered">
             <div><p className="eyebrow"><span /> Cómo funciona</p><h2>Así de fácil cuidamos tu vehículo.</h2></div>
@@ -228,9 +251,9 @@ export default function Home() {
             </article>
           ))}
         </div>
-      </section>
+      </section>}
 
-      <section className="section shop" id="tienda">
+      {isShop && <section className="section shop page-section" id="tienda">
         <div className="section-heading">
           <div><p className="eyebrow"><span /> Tienda Jamiro</p><h2>Servicios listos para comprar.</h2></div>
           <p>Comprá ahora y elegí retiro, entrega o instalación profesional en nuestro taller.</p>
@@ -251,9 +274,9 @@ export default function Home() {
           ))}
         </div>
         <button className="button button-ghost shop-all">Ver todos los productos →</button>
-      </section>
+      </section>}
 
-      <section className="section about" id="nosotros">
+      {isAbout && <section className="section about page-section" id="nosotros">
         <div className="about-copy">
           <p className="eyebrow"><span /> Taller Automotriz Jamiro</p>
           <h2>16 años haciendo que la confianza vuelva a la carretera.</h2>
@@ -261,9 +284,9 @@ export default function Home() {
           <a className="button button-ghost" href="https://www.facebook.com/profile.php?id=100078892144883" target="_blank" rel="noreferrer">Conocenos en Facebook →</a>
         </div>
         <div className="about-stat"><strong>16</strong><span>años de experiencia</span><small>San Carlos, Costa Rica</small></div>
-      </section>
+      </section>}
 
-      <section className="cta-section" id="contacto">
+      {isContact && <section className="cta-section page-section" id="contacto">
         <div>
           <p className="eyebrow"><span /> Estamos listos</p>
           <h2>Tu próximo viaje empieza con un vehículo en buenas manos.</h2>
@@ -274,7 +297,7 @@ export default function Home() {
           </div>
         </div>
         <a className="button" href="https://wa.me/50670111090" target="_blank" rel="noreferrer">Escribir por WhatsApp →</a>
-      </section>
+      </section>}
 
       <footer>
         <div className="brand footer-brand"><img src="/logo-jamiro-v2.svg" alt="" /><span><strong>Taller Automotriz</strong>Jamiro</span></div>
