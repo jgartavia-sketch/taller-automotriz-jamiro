@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 240" role="img" aria-labelledby="title">
+  <title id="title">Taller Automotriz Jamiro</title>
+  <defs>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".42" stop-color="#8f969d"/><stop offset=".7" stop-color="#f4f6f7"/><stop offset="1" stop-color="#575d63"/></linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff3540"/><stop offset="1" stop-color="#a80009"/></linearGradient>
+  </defs>
+  <g transform="translate(20 12)">
+    <path d="M110 8 130 23l25-4 12 22 25 7-2 25 18 19-14 21 4 25-24 10-9 24-25-1-20 17-20-17-25 1-9-24-24-10 4-25L2 92l18-19-2-25 25-7 12-22 25 4z" fill="none" stroke="url(#steel)" stroke-width="12"/>
+    <circle cx="110" cy="98" r="65" fill="#090b0d" stroke="#252a2f" stroke-width="6"/>
+    <path d="M49 113c18-11 35-18 52-20 22-3 43 2 70 15l-11-25c-4-9-12-14-22-15H86c-12 1-19 7-24 16z" fill="none" stroke="url(#red)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="75" cy="116" r="11" fill="#070809" stroke="url(#steel)" stroke-width="6"/><circle cx="151" cy="116" r="11" fill="#070809" stroke="url(#steel)" stroke-width="6"/>
+    <path d="M105 49 91 85h22l-12 38 39-52h-23l14-22z" fill="url(#red)"/>
+  </g>
+  <g transform="translate(240 45)">
+    <text x="0" y="95" fill="url(#steel)" font-family="Arial Black,Arial,sans-serif" font-size="88" font-weight="900" font-style="italic" letter-spacing="-5">JAMIRO</text>
+    <path d="M0 115h430" stroke="url(#red)" stroke-width="8"/>
+  </g>
+</svg>

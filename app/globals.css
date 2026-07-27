@@ -26,7 +26,7 @@ button { cursor: pointer; }
   background: rgba(5,6,7,.86); backdrop-filter: blur(18px);
 }
 .brand { display: flex; align-items: center; gap: 12px; color: white; text-decoration: none; min-width: 210px; }
-.brand img { width: 60px; height: 54px; object-fit: cover; object-position: 50% 42%; border-radius: 8px; }
+.brand img { width: 60px; height: 54px; object-fit: contain; border-radius: 8px; }
 .brand span { font-size: 21px; line-height: .92; font-style: italic; font-weight: 900; text-transform: uppercase; }
 .brand strong { display: block; color: #aeb3b7; font-size: 9px; letter-spacing: .17em; font-style: normal; margin-bottom: 5px; }
 nav { display: flex; align-items: center; gap: 30px; }
@@ -112,7 +112,54 @@ nav a:hover { color: white; }
 .product-copy button { padding: 10px 13px; border: 1px solid rgba(226,13,24,.45); background: transparent; color: white; font-size: 9px; text-transform: uppercase; font-weight: 800; }
 .shop-all { display: flex; margin: 35px auto 0; }
 
-.process { background: linear-gradient(180deg,#070809,#0d1012); }
+.loyalty { background: linear-gradient(160deg,#101317,#070809 55%,#0c0e11); border-bottom: 1px solid var(--line); }
+.loyalty-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 22px; align-items: stretch; }
+.registration-panel, .loyalty-card { border: 1px solid var(--line); background: rgba(15,18,21,.92); padding: clamp(24px,3vw,38px); }
+.panel-title { display: flex; align-items: center; gap: 16px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.panel-title > span { width: 45px; height: 45px; display: grid; place-items: center; border: 1px solid rgba(226,13,24,.5); color: var(--red-bright); font-weight: 900; }
+.panel-title small, .card-top small, .customer-data small, .points-total small, .points-split small, .referral-generator small { display: block; color: var(--muted); font-size: 9px; letter-spacing: .13em; text-transform: uppercase; }
+.panel-title h3 { margin: 4px 0 0; text-transform: uppercase; font-style: italic; }
+.registration-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.registration-form label { display: grid; gap: 8px; color: #d8dcdf; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
+.registration-form input { width: 100%; padding: 14px; border: 1px solid var(--line); outline: none; background: #080a0c; color: white; text-transform: none; }
+.registration-form input:focus { border-color: var(--red); }
+.registration-form label small { color: var(--muted); font-size: 8px; }
+.registration-form .terms-check, .registration-form .button { grid-column: 1 / -1; }
+.terms-check { display: flex !important; grid-template-columns: 18px 1fr; align-items: center; }
+.terms-check input { width: 16px; height: 16px; accent-color: var(--red); }
+.registration-success { min-height: 100%; display: grid; align-content: center; justify-items: start; gap: 14px; }
+.registration-success > span { width: 55px; height: 55px; display: grid; place-items: center; border-radius: 50%; background: var(--green); font-size: 24px; }
+.registration-success h3 { margin: 0; font-size: 30px; text-transform: uppercase; font-style: italic; }
+.registration-success p:not(.eyebrow) { color: var(--muted); line-height: 1.7; }
+.loyalty-card { position: relative; overflow: hidden; background: radial-gradient(circle at 90% 10%,rgba(226,13,24,.18),transparent 35%),linear-gradient(145deg,#171b1f,#080a0c); box-shadow: 0 25px 65px rgba(0,0,0,.45); }
+.loyalty-card:after { content: ""; position: absolute; width: 280px; height: 280px; right: -150px; bottom: -160px; border: 1px solid rgba(255,255,255,.08); border-radius: 50%; }
+.card-top { display: flex; align-items: center; gap: 11px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.card-top img { width: 48px; height: 44px; object-fit: contain; border-radius: 6px; }
+.card-top strong { display: block; margin-top: 3px; text-transform: uppercase; font-style: italic; }
+.card-top > span { margin-left: auto; padding: 6px 9px; border: 1px solid rgba(27,155,81,.5); color: #55d78a; font-size: 8px; font-weight: 900; letter-spacing: .12em; }
+.customer-data { margin-top: 25px; }
+.customer-data h3 { margin: 5px 0; font-size: clamp(22px,3vw,34px); text-transform: uppercase; font-style: italic; }
+.customer-data p { margin: 0; color: var(--muted); font: 10px monospace; }
+.points-total { margin-top: 28px; }
+.points-total strong { font-size: 58px; line-height: 1; color: white; }
+.points-total > span { margin-left: 7px; color: var(--red-bright); font-size: 15px; font-weight: 900; }
+.points-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+.points-split div { padding: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.025); }
+.points-split strong { display: block; margin-top: 8px; font-size: 16px; }
+.referral-generator { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; border: 1px dashed rgba(226,13,24,.5); background: rgba(226,13,24,.05); }
+.referral-generator strong, .referral-generator span { display: block; }
+.referral-generator strong { margin-top: 7px; font: 800 13px monospace; }
+.referral-generator span { margin-top: 5px; color: var(--muted); font-size: 9px; }
+.referral-generator button, .referral-generator a { padding: 10px 12px; border: 1px solid rgba(226,13,24,.5); background: #16191c; color: white; text-decoration: none; text-transform: uppercase; font-size: 8px; font-weight: 900; }
+.referral-generator button:disabled { cursor: not-allowed; opacity: .45; }
+.referral-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.demo-note { margin: 15px 0 0; color: #70767c; font-size: 8px; }
+.benefit-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin-top: 22px; background: var(--line); border: 1px solid var(--line); }
+.benefit-strip div { padding: 25px; background: #0b0d0f; }
+.benefit-strip span { color: var(--red); font-size: 10px; font-weight: 900; }
+.benefit-strip strong { display: block; margin: 13px 0 7px; text-transform: uppercase; font-style: italic; font-size: 13px; }
+.benefit-strip p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+.process-inside { margin-bottom: 90px; padding: 45px 0; border-block: 1px solid var(--line); background: linear-gradient(180deg,#070809,#0d1012); }
 .centered { justify-content: center; text-align: center; }
 .process-grid { display: grid; grid-template-columns: repeat(4,1fr); }
 .process-grid article { position: relative; padding: 24px 30px; border-left: 1px solid var(--line); }
@@ -120,6 +167,16 @@ nav a:hover { color: white; }
 .process-grid span { color: var(--red); font-size: 11px; font-weight: 900; }
 .process-grid h3 { margin: 35px 0 12px; font-size: 16px; text-transform: uppercase; font-style: italic; }
 .process-grid p { color: var(--muted); font-size: 11px; line-height: 1.7; }
+.about { display: grid; grid-template-columns: 1.2fr .8fr; gap: 70px; align-items: center; background: radial-gradient(circle at 80% 50%,rgba(22,142,209,.11),transparent 30%),#080a0c; }
+.about h2 { margin: 0; max-width: 800px; font-size: clamp(38px,5vw,68px); line-height: .95; letter-spacing: -.045em; text-transform: uppercase; font-style: italic; }
+.about-copy > p:not(.eyebrow) { max-width: 650px; margin: 24px 0 30px; color: var(--muted); line-height: 1.8; }
+.about-stat { min-height: 300px; display: grid; place-items: center; align-content: center; text-align: center; border: 1px solid var(--line); background: rgba(255,255,255,.025); }
+.about-stat strong { color: var(--red-bright); font-size: clamp(90px,13vw,170px); line-height: .8; font-style: italic; }
+.about-stat span { margin-top: 18px; text-transform: uppercase; font-style: italic; font-weight: 900; }
+.about-stat small { margin-top: 10px; color: var(--muted); }
+.contact-details { display: flex; flex-wrap: wrap; gap: 16px 24px; margin-top: 25px; }
+.contact-details a, .contact-details span { color: #b9bec3; font-size: 11px; text-decoration: none; }
+.contact-details a:hover { color: white; }
 .cta-section { padding: 80px clamp(24px, 7vw, 110px); display: flex; align-items: center; justify-content: space-between; gap: 40px; background: linear-gradient(100deg,#15191d,#08090a); border-block: 1px solid var(--line); }
 .cta-section h2 { max-width: 850px; }
 footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: center; justify-content: space-between; gap: 30px; color: var(--muted); font-size: 10px; }
@@ -173,6 +230,7 @@ footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: cent
   .service-grid { grid-template-columns: repeat(2,1fr); }
   .product-grid { grid-template-columns: repeat(2,1fr); }
   .product-card:last-child { grid-column: span 2; }
+  .loyalty-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 720px) {
@@ -199,6 +257,12 @@ footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: cent
   .section-heading { display: block; }
   .section-heading > p { margin-top: 20px; }
   .service-grid, .product-grid, .process-grid { grid-template-columns: 1fr; }
+  .registration-form, .points-split, .benefit-strip, .about { grid-template-columns: 1fr; }
+  .registration-form .terms-check, .registration-form .button { grid-column: auto; }
+  .referral-generator { align-items: stretch; flex-direction: column; }
+  .referral-actions { justify-content: flex-start; }
+  .process-inside { margin-bottom: 65px; padding: 25px 0; }
+  .about { gap: 38px; }
   .product-card:last-child { grid-column: auto; }
   .process-grid article, .process-grid article:last-child { border: 0; border-top: 1px solid var(--line); }
   .cta-section { display: block; padding: 60px 20px; }

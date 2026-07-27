@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { FormEvent } from "react";
 
 const services = [
   { icon: "⚡", title: "Electromecánica", text: "Diagnóstico preciso y soluciones para sistemas eléctricos y electrónicos." },
@@ -21,6 +22,10 @@ export default function Home() {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [registered, setRegistered] = useState(false);
+  const [customerName, setCustomerName] = useState("José Artavia");
+  const [referralCode, setReferralCode] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const addToCart = (id: number) => {
     setCart((current) => [...current, id]);
@@ -29,19 +34,39 @@ export default function Home() {
 
   const cartProducts = cart.map((id) => products.find((product) => product.id === id)!);
 
+  const registerCustomer = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    setCustomerName(String(data.get("name") || "Cliente Jamiro"));
+    setRegistered(true);
+  };
+
+  const generateReferralCode = () => {
+    const code = `JAMIRO-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    setReferralCode(code);
+    setCopied(false);
+  };
+
+  const copyReferralCode = async () => {
+    if (!referralCode) return;
+    await navigator.clipboard?.writeText(referralCode);
+    setCopied(true);
+  };
+
   return (
     <main>
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Taller Automotriz Jamiro, inicio">
-          <img src="/logo-jamiro.png" alt="Taller Automotriz Jamiro" />
+          <img src="/logo-jamiro-v2.svg" alt="Taller Automotriz Jamiro" />
           <span><strong>Taller Automotriz</strong>Jamiro</span>
         </a>
 
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">☰</button>
         <nav className={menuOpen ? "nav-open" : ""}>
+          <a href="#registro" onClick={() => setMenuOpen(false)}>Registro</a>
           <a href="#servicios" onClick={() => setMenuOpen(false)}>Servicios</a>
           <a href="#tienda" onClick={() => setMenuOpen(false)}>Tienda</a>
-          <a href="#proceso" onClick={() => setMenuOpen(false)}>Cómo funciona</a>
+          <a href="#nosotros" onClick={() => setMenuOpen(false)}>Nosotros</a>
           <a href="#contacto" onClick={() => setMenuOpen(false)}>Contacto</a>
         </nav>
 
@@ -77,7 +102,7 @@ export default function Home() {
           <div className="logo-stage">
             <div className="orbit orbit-one" />
             <div className="orbit orbit-two" />
-            <img src="/logo-jamiro.png" alt="Logo de Taller Automotriz Jamiro" />
+            <img src="/logo-jamiro-v2.svg" alt="Logo de Taller Automotriz Jamiro" />
           </div>
           <div className="status-card">
             <span className="status-icon">✓</span>
@@ -87,13 +112,108 @@ export default function Home() {
       </section>
 
       <section className="metrics" aria-label="Ventajas del taller">
-        <div><strong>Servicio</strong><span>rápido y confiable</span></div>
+        <div><strong>16 años</strong><span>de experiencia</span></div>
         <div><strong>Atención</strong><span>clara y profesional</span></div>
         <div><strong>Técnicos</strong><span>especializados</span></div>
         <div><strong>Calidad</strong><span>garantizada</span></div>
       </section>
 
+      <section className="section loyalty" id="registro">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow"><span /> Club Jamiro</p>
+            <h2>Cada visita mueve tu recompensa.</h2>
+          </div>
+          <p>Registrate gratis, acumulá puntos por tus compras y servicios, e invitá personas para construir una red que también te premie.</p>
+        </div>
+
+        <div className="loyalty-layout">
+          <div className="registration-panel">
+            {!registered ? (
+              <>
+                <div className="panel-title">
+                  <span>01</span>
+                  <div><small>Registro gratuito</small><h3>Creá tu cuenta</h3></div>
+                </div>
+                <form className="registration-form" onSubmit={registerCustomer}>
+                  <label>Nombre completo<input name="name" required placeholder="Ej. Carlos Sánchez" /></label>
+                  <label>Correo electrónico<input name="email" type="email" required placeholder="correo@ejemplo.com" /></label>
+                  <label>WhatsApp<input name="phone" type="tel" required placeholder="+506 8888-8888" /></label>
+                  <label>Código de referido <small>Opcional</small><input name="referral" placeholder="Ej. JAMIRO-A7K29Q" /></label>
+                  <label className="terms-check"><input type="checkbox" required /><span>Acepto los términos del programa de fidelización.</span></label>
+                  <button className="button" type="submit">Crear mi tarjeta →</button>
+                </form>
+              </>
+            ) : (
+              <div className="registration-success">
+                <span>✓</span>
+                <p className="eyebrow">Registro simulado completado</p>
+                <h3>¡Bienvenido al Club Jamiro!</h3>
+                <p>Tu tarjeta digital ya está lista. Cuando conectemos el backend, esta cuenta quedará vinculada de forma segura a tu correo y WhatsApp.</p>
+                <button className="button button-ghost" onClick={() => setRegistered(false)}>Registrar otra persona</button>
+              </div>
+            )}
+          </div>
+
+          <article className="loyalty-card" aria-label="Vista previa de tarjeta digital">
+            <div className="card-top">
+              <img src="/logo-jamiro-v2.svg" alt="" />
+              <div><small>Cliente frecuente</small><strong>Club Jamiro</strong></div>
+              <span>ACTIVA</span>
+            </div>
+            <div className="customer-data">
+              <small>Cliente</small>
+              <h3>{registered ? customerName : "Tu nombre aparecerá aquí"}</h3>
+              <p>ID JAM-2026-001</p>
+            </div>
+            <div className="points-total"><small>Puntos disponibles</small><strong>0</strong><span>pts</span></div>
+            <div className="points-split">
+              <div><small>Por compras y servicios</small><strong>0 pts</strong></div>
+              <div><small>Por referidos</small><strong>0 pts</strong></div>
+            </div>
+            <div className="referral-generator">
+              <div>
+                <small>Tu código de referido</small>
+                <strong>{referralCode || "Generá uno cuando lo necesités"}</strong>
+                {referralCode && <span>Vence en 3 días · Un solo uso</span>}
+              </div>
+              {!referralCode ? (
+                <button onClick={generateReferralCode} disabled={!registered}>{registered ? "Generar código" : "Registrate primero"}</button>
+              ) : (
+                <div className="referral-actions">
+                  <button onClick={copyReferralCode}>{copied ? "Copiado ✓" : "Copiar"}</button>
+                  <a href={`https://wa.me/?text=${encodeURIComponent(`Registrate en el Club Jamiro con mi código ${referralCode}. Vence en 3 días.`)}`} target="_blank" rel="noreferrer">WhatsApp</a>
+                  <button onClick={generateReferralCode}>Nuevo</button>
+                </div>
+              )}
+            </div>
+            <p className="demo-note">Vista demostrativa · Los datos se guardarán al conectar el backend.</p>
+          </article>
+        </div>
+
+        <div className="benefit-strip">
+          <div><span>01</span><strong>Comprá o recibí un servicio</strong><p>Sumás puntos personales por cada transacción confirmada.</p></div>
+          <div><span>02</span><strong>Invitá con un código</strong><p>Cada código es único, vence en tres días y funciona una sola vez.</p></div>
+          <div><span>03</span><strong>Tu red también suma</strong><p>Ganás puntos cuando tus referidos compran o visitan el taller.</p></div>
+        </div>
+      </section>
+
       <section className="section services" id="servicios">
+        <div className="process-inside">
+          <div className="section-heading centered">
+            <div><p className="eyebrow"><span /> Cómo funciona</p><h2>Así de fácil cuidamos tu vehículo.</h2></div>
+          </div>
+          <div className="process-grid">
+            {[
+              ["01", "Elegí", "Seleccioná un servicio, producto o enviá los síntomas del vehículo."],
+              ["02", "Cotizá", "Recibí una propuesta clara antes de aprobar cualquier trabajo."],
+              ["03", "Agendá", "Coordiná retiro, entrega o instalación según lo que necesités."],
+              ["04", "Sumá puntos", "Con cada compra o servicio confirmado crece tu saldo Jamiro."],
+            ].map(([number, title, text]) => (
+              <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>
+            ))}
+          </div>
+        </div>
         <div className="section-heading">
           <div><p className="eyebrow"><span /> Todo en un solo lugar</p><h2>Soluciones para cada kilómetro.</h2></div>
           <p>Desde mantenimiento preventivo hasta diagnósticos complejos, cuidamos cada detalle de tu vehículo.</p>
@@ -133,32 +253,31 @@ export default function Home() {
         <button className="button button-ghost shop-all">Ver todos los productos →</button>
       </section>
 
-      <section className="section process" id="proceso">
-        <div className="section-heading centered">
-          <div><p className="eyebrow"><span /> Sin complicaciones</p><h2>Así de fácil cuidamos tu vehículo.</h2></div>
+      <section className="section about" id="nosotros">
+        <div className="about-copy">
+          <p className="eyebrow"><span /> Taller Automotriz Jamiro</p>
+          <h2>16 años haciendo que la confianza vuelva a la carretera.</h2>
+          <p>Experiencia real en electromecánica, mecánica general y mantenimiento automotriz, con atención clara antes, durante y después de cada trabajo.</p>
+          <a className="button button-ghost" href="https://www.facebook.com/profile.php?id=100078892144883" target="_blank" rel="noreferrer">Conocenos en Facebook →</a>
         </div>
-        <div className="process-grid">
-          {[
-            ["01", "Contanos qué necesitás", "Elegí un servicio o enviá los síntomas de tu vehículo."],
-            ["02", "Recibí tu cotización", "Revisamos tu solicitud y te presentamos una propuesta clara."],
-            ["03", "Aprobá y agendá", "Elegí el momento que mejor te funcione para visitarnos."],
-            ["04", "Volvé a la carretera", "Te entregamos el vehículo listo, respaldado y seguro."],
-          ].map(([number, title, text]) => (
-            <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>
-          ))}
-        </div>
+        <div className="about-stat"><strong>16</strong><span>años de experiencia</span><small>San Carlos, Costa Rica</small></div>
       </section>
 
       <section className="cta-section" id="contacto">
         <div>
           <p className="eyebrow"><span /> Estamos listos</p>
           <h2>Tu próximo viaje empieza con un vehículo en buenas manos.</h2>
+          <div className="contact-details">
+            <a href="https://wa.me/50670111090" target="_blank" rel="noreferrer">WhatsApp: +506 7011-1090</a>
+            <a href="mailto:automotrizjamirosc@gmail.com">automotrizjamirosc@gmail.com</a>
+            <span>150 m del Súper San Juan, San Carlos</span>
+          </div>
         </div>
-        <button className="button" onClick={() => setQuoteOpen(true)}>Solicitar cotización →</button>
+        <a className="button" href="https://wa.me/50670111090" target="_blank" rel="noreferrer">Escribir por WhatsApp →</a>
       </section>
 
       <footer>
-        <div className="brand footer-brand"><img src="/logo-jamiro.png" alt="" /><span><strong>Taller Automotriz</strong>Jamiro</span></div>
+        <div className="brand footer-brand"><img src="/logo-jamiro-v2.svg" alt="" /><span><strong>Taller Automotriz</strong>Jamiro</span></div>
         <p>Especialistas en electromecánica, mecánica automotriz y mantenimiento integral.</p>
         <p>© 2026 Taller Automotriz Jamiro</p>
       </footer>
