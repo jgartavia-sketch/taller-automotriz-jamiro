@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,6 +18,32 @@ const products = [
   { id: 3, tag: "Seguridad", icon: "DEKRA", title: "Inspección pre-DEKRA", detail: "Chequeo preventivo completo", price: "₡22.500" },
 ];
 
+type CustomerProfile = {
+  name: string;
+  email: string;
+  phone: string;
+  customerId: string;
+  purchasePoints: number;
+  referralPoints: number;
+  referrals: number;
+};
+
+const demoProfile: CustomerProfile = {
+  name: "Carlos Sánchez",
+  email: "carlos@ejemplo.com",
+  phone: "+506 8888-8888",
+  customerId: "JAM-2026-001",
+  purchasePoints: 340,
+  referralPoints: 160,
+  referrals: 4,
+};
+
+const rewards = [
+  { points: 250, title: "Diagnóstico preventivo", detail: "Revisión visual y escaneo básico.", available: true },
+  { points: 500, title: "Cambio de aceite", detail: "Mano de obra incluida. Aplican condiciones.", available: true },
+  { points: 850, title: "Pre-DEKRA completo", detail: "Inspección preventiva de puntos críticos.", available: false },
+];
+
 export default function Home() {
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -26,15 +52,31 @@ export default function Home() {
   const isShop = pathname === "/tienda";
   const isAbout = pathname === "/nosotros";
   const isContact = pathname === "/contacto";
+  const isLogin = pathname === "/login";
+  const isAccount = pathname === "/mi-cuenta";
   const [cart, setCart] = useState<number[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [sent, setSent] = useState(false);
-  const [registered, setRegistered] = useState(false);
-  const [customerName, setCustomerName] = useState("José Artavia");
+  const [profile, setProfile] = useState<CustomerProfile | null>(null);
+  const [authMessage, setAuthMessage] = useState("");
   const [referralCode, setReferralCode] = useState("");
+  const [referralExpiry, setReferralExpiry] = useState("");
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const savedProfile = window.localStorage.getItem("jamiro_demo_profile");
+    const savedReferral = window.localStorage.getItem("jamiro_demo_referral");
+    if (savedProfile) setProfile(JSON.parse(savedProfile) as CustomerProfile);
+    if (savedReferral) {
+      const parsed = JSON.parse(savedReferral) as { code: string; expiry: string };
+      if (new Date(parsed.expiry) > new Date()) {
+        setReferralCode(parsed.code);
+        setReferralExpiry(parsed.expiry);
+      }
+    }
+  }, []);
 
   const addToCart = (id: number) => {
     setCart((current) => [...current, id]);
@@ -46,14 +88,26 @@ export default function Home() {
   const registerCustomer = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    setCustomerName(String(data.get("name") || "Cliente Jamiro"));
-    setRegistered(true);
+    const newProfile: CustomerProfile = {
+      name: String(data.get("name") || "Cliente Jamiro"),
+      email: String(data.get("email") || ""),
+      phone: String(data.get("phone") || ""),
+      customerId: `JAM-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      purchasePoints: 0,
+      referralPoints: 0,
+      referrals: 0,
+    };
+    setProfile(newProfile);
+    window.localStorage.setItem("jamiro_demo_profile", JSON.stringify(newProfile));
   };
 
   const generateReferralCode = () => {
     const code = `JAMIRO-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const expiry = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
     setReferralCode(code);
+    setReferralExpiry(expiry);
     setCopied(false);
+    window.localStorage.setItem("jamiro_demo_referral", JSON.stringify({ code, expiry }));
   };
 
   const copyReferralCode = async () => {
@@ -61,6 +115,30 @@ export default function Home() {
     await navigator.clipboard?.writeText(referralCode);
     setCopied(true);
   };
+
+  const loginCustomer = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get("email") || "");
+    const current = profile || { ...demoProfile, email };
+    setProfile(current);
+    window.localStorage.setItem("jamiro_demo_profile", JSON.stringify(current));
+    setAuthMessage("Sesión demostrativa iniciada. Ya podés entrar a tu cuenta.");
+  };
+
+  const logoutCustomer = () => {
+    setProfile(null);
+    setReferralCode("");
+    setReferralExpiry("");
+    setAuthMessage("");
+    window.localStorage.removeItem("jamiro_demo_profile");
+    window.localStorage.removeItem("jamiro_demo_referral");
+  };
+
+  const totalPoints = useMemo(
+    () => (profile?.purchasePoints || 0) + (profile?.referralPoints || 0),
+    [profile],
+  );
 
   return (
     <main>
@@ -72,7 +150,6 @@ export default function Home() {
 
         <button
           className="menu-toggle"
-          type="button"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={menuOpen}
@@ -94,6 +171,7 @@ export default function Home() {
             Bolsa <span>{cart.length}</span>
           </button>
           <button className="button button-small" onClick={() => setQuoteOpen(true)}>Cotizar ahora</button>
+          <Link className="account-link" href={profile ? "/mi-cuenta" : "/login"}>{profile ? "Mi cuenta" : "Ingresar"}</Link>
         </div>
       </header>
 
@@ -162,7 +240,7 @@ export default function Home() {
 
         <div className="loyalty-layout">
           <div className="registration-panel">
-            {!registered ? (
+            {!profile ? (
               <>
                 <div className="panel-title">
                   <span>01</span>
@@ -180,10 +258,10 @@ export default function Home() {
             ) : (
               <div className="registration-success">
                 <span>✓</span>
-                <p className="eyebrow">Registro simulado completado</p>
+                <p className="eyebrow">Cuenta demostrativa creada</p>
                 <h3>¡Bienvenido al Club Jamiro!</h3>
-                <p>Tu tarjeta digital ya está lista. Cuando conectemos el backend, esta cuenta quedará vinculada de forma segura a tu correo y WhatsApp.</p>
-                <button className="button button-ghost" onClick={() => setRegistered(false)}>Registrar otra persona</button>
+                <p>Tu tarjeta digital ya está lista y podés verla en Mi cuenta. Cuando conectemos el backend, quedará vinculada de forma segura a tu correo y WhatsApp.</p>
+                <Link className="button" href="/mi-cuenta">Ver mi cuenta →</Link>
               </div>
             )}
           </div>
@@ -196,22 +274,22 @@ export default function Home() {
             </div>
             <div className="customer-data">
               <small>Cliente</small>
-              <h3>{registered ? customerName : "Tu nombre aparecerá aquí"}</h3>
-              <p>ID JAM-2026-001</p>
+              <h3>{profile ? profile.name : "Tu nombre aparecerá aquí"}</h3>
+              <p>ID {profile?.customerId || "JAM-2026-0000"}</p>
             </div>
-            <div className="points-total"><small>Puntos disponibles</small><strong>0</strong><span>pts</span></div>
+            <div className="points-total"><small>Puntos disponibles</small><strong>{totalPoints}</strong><span>pts</span></div>
             <div className="points-split">
-              <div><small>Por compras y servicios</small><strong>0 pts</strong></div>
-              <div><small>Por referidos</small><strong>0 pts</strong></div>
+              <div><small>Por compras y servicios</small><strong>{profile?.purchasePoints || 0} pts</strong></div>
+              <div><small>Por referidos</small><strong>{profile?.referralPoints || 0} pts</strong></div>
             </div>
             <div className="referral-generator">
               <div>
                 <small>Tu código de referido</small>
                 <strong>{referralCode || "Generá uno cuando lo necesités"}</strong>
-                {referralCode && <span>Vence en 3 días · Un solo uso</span>}
+                {referralCode && <span>Vence {new Date(referralExpiry).toLocaleDateString("es-CR")} · Un solo uso</span>}
               </div>
               {!referralCode ? (
-                <button onClick={generateReferralCode} disabled={!registered}>{registered ? "Generar código" : "Registrate primero"}</button>
+                <button onClick={generateReferralCode} disabled={!profile}>{profile ? "Generar código" : "Registrate primero"}</button>
               ) : (
                 <div className="referral-actions">
                   <button onClick={copyReferralCode}>{copied ? "Copiado ✓" : "Copiar"}</button>
@@ -229,6 +307,86 @@ export default function Home() {
           <div><span>02</span><strong>Invitá con un código</strong><p>Cada código es único, vence en tres días y funciona una sola vez.</p></div>
           <div><span>03</span><strong>Tu red también suma</strong><p>Ganás puntos cuando tus referidos compran o visitan el taller.</p></div>
         </div>
+      </section>}
+
+      {isLogin && <section className="section auth-page page-section">
+        <div className="auth-copy">
+          <p className="eyebrow"><span /> Acceso Club Jamiro</p>
+          <h2>Tu vehículo, tus puntos y tu historial en un solo lugar.</h2>
+          <p>Este acceso funciona como demostración del flujo final. El backend agregará contraseña cifrada, recuperación de acceso y sesiones seguras.</p>
+          <div className="auth-features">
+            <span>✓ Tarjeta digital</span>
+            <span>✓ Recompensas</span>
+            <span>✓ Historial de servicios</span>
+          </div>
+        </div>
+        <div className="auth-panel">
+          <div className="panel-title"><span>→</span><div><small>Cliente registrado</small><h3>Ingresar</h3></div></div>
+          <form className="registration-form single-column" onSubmit={loginCustomer}>
+            <label>Correo electrónico<input name="email" type="email" required placeholder="correo@ejemplo.com" /></label>
+            <label>Contraseña<input name="password" type="password" required minLength={6} placeholder="••••••••" /></label>
+            <button className="button" type="submit">Ingresar a mi cuenta →</button>
+          </form>
+          {authMessage && <div className="inline-success">{authMessage}<Link href="/mi-cuenta">Abrir mi cuenta →</Link></div>}
+          <p className="auth-switch">¿Todavía no sos parte? <Link href="/registro">Crear cuenta gratis</Link></p>
+        </div>
+      </section>}
+
+      {isAccount && <section className="section account-page page-section">
+        {!profile ? (
+          <div className="account-empty">
+            <p className="eyebrow"><span /> Club Jamiro</p>
+            <h2>Primero ingresá a tu cuenta.</h2>
+            <p>Así podremos mostrar tu tarjeta, tus puntos y tu historial.</p>
+            <div><Link className="button" href="/login">Ingresar →</Link><Link className="button button-ghost" href="/registro">Registrarme</Link></div>
+          </div>
+        ) : (
+          <>
+            <div className="account-heading">
+              <div><p className="eyebrow"><span /> Mi cuenta</p><h2>Hola, {profile.name.split(" ")[0]}.</h2><p>Todo lo importante de tu relación con Jamiro, sin papeles ni vueltas.</p></div>
+              <button className="text-button" onClick={logoutCustomer}>Cerrar sesión</button>
+            </div>
+            <div className="account-grid">
+              <article className="loyalty-card account-card">
+                <div className="card-top"><img src="/logo-jamiro.png" alt="" /><div><small>Cliente frecuente</small><strong>Club Jamiro</strong></div><span>ACTIVA</span></div>
+                <div className="customer-data"><small>Cliente</small><h3>{profile.name}</h3><p>ID {profile.customerId}</p></div>
+                <div className="points-total"><small>Saldo total</small><strong>{totalPoints}</strong><span>pts</span></div>
+                <div className="points-split"><div><small>Compras y servicios</small><strong>{profile.purchasePoints} pts</strong></div><div><small>Red de referidos</small><strong>{profile.referralPoints} pts</strong></div></div>
+              </article>
+              <div className="account-summary">
+                <article><small>Referidos activos</small><strong>{profile.referrals}</strong><p>Personas registradas con tus códigos.</p></article>
+                <article><small>Próxima recompensa</small><strong>{Math.max(0, 850 - totalPoints)} pts</strong><p>Para desbloquear Pre-DEKRA completo.</p></article>
+                <article><small>Última visita</small><strong>18 JUL</strong><p>Cambio de aceite premium.</p></article>
+              </div>
+            </div>
+
+            <div className="account-section">
+              <div className="subheading"><div><p className="eyebrow"><span /> Beneficios</p><h3>Recompensas disponibles</h3></div><p>Los puntos se descuentan únicamente cuando el beneficio es confirmado por el taller.</p></div>
+              <div className="reward-grid">{rewards.map((reward) => {
+                const unlocked = totalPoints >= reward.points;
+                return <article className={unlocked ? "reward-card unlocked" : "reward-card"} key={reward.title}><span>{reward.points} pts</span><h4>{reward.title}</h4><p>{reward.detail}</p><button disabled={!unlocked}>{unlocked ? "Canjear beneficio" : `Te faltan ${reward.points - totalPoints} pts`}</button></article>;
+              })}</div>
+            </div>
+
+            <div className="account-columns">
+              <div className="account-section referral-center">
+                <p className="eyebrow"><span /> Crecé tu red</p><h3>Invitar a alguien</h3><p>El código vence en tres días y solo puede utilizarse una vez. Podés generar otro cuando el anterior expire o sea utilizado.</p>
+                <div className="referral-generator">
+                  <div><small>Código activo</small><strong>{referralCode || "Sin código activo"}</strong>{referralCode && <span>Vence {new Date(referralExpiry).toLocaleDateString("es-CR")}</span>}</div>
+                  {!referralCode ? <button onClick={generateReferralCode}>Generar código</button> : <div className="referral-actions"><button onClick={copyReferralCode}>{copied ? "Copiado ✓" : "Copiar"}</button><a href={`https://wa.me/?text=${encodeURIComponent(`Registrate en el Club Jamiro con mi código ${referralCode}.`)}`} target="_blank" rel="noreferrer">WhatsApp</a></div>}
+                </div>
+              </div>
+              <div className="account-section">
+                <p className="eyebrow"><span /> Actividad</p><h3>Historial reciente</h3>
+                <div className="history-list">
+                  <div><span>18 JUL</span><p><strong>Cambio de aceite premium</strong><small>Compra confirmada · +125 pts</small></p></div>
+                  <div><span>11 JUL</span><p><strong>Referido registrado</strong><small>Código utilizado · +40 pts</small></p></div>
+                  <div><span>02 JUL</span><p><strong>Escaneo computarizado</strong><small>Servicio completado · +90 pts</small></p></div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </section>}
 
       {isServices && <section className="section services page-section" id="servicios">
