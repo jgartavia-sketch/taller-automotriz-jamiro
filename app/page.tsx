@@ -168,7 +168,7 @@ export default function Home() {
 
         <div className="header-actions">
           <button className="cart-button" onClick={() => setCartOpen(true)} aria-label="Ver carrito">
-            Bolsa <span>{cart.length}</span>
+            Carrito <span>{cart.length}</span>
           </button>
           <button className="button button-small" onClick={() => setQuoteOpen(true)}>Cotizar ahora</button>
           <Link className="account-link" href={profile ? "/mi-cuenta" : "/login"}>{profile ? "Mi cuenta" : "Ingresar"}</Link>
@@ -200,10 +200,6 @@ export default function Home() {
             <div className="orbit orbit-one" />
             <div className="orbit orbit-two" />
             <img src="/logo-jamiro.png" alt="Logo de Taller Automotriz Jamiro" />
-          </div>
-          <div className="status-card">
-            <span className="status-icon">✓</span>
-            <div><strong>Diagnóstico confiable</strong><small>Antes de reparar, te explicamos.</small></div>
           </div>
         </div>
       </section>}
@@ -469,8 +465,12 @@ export default function Home() {
 
       <footer>
         <div className="brand footer-brand"><img src="/logo-jamiro.png" alt="" /><span><strong>Taller Automotriz</strong>Jamiro</span></div>
-        <p>Especialistas en electromecánica, mecánica automotriz y mantenimiento integral.</p>
-        <p>© 2026 Taller Automotriz Jamiro</p>
+        <div className="footer-contact" aria-label="Información de contacto">
+          <p><strong>Teléfono y WhatsApp</strong>+506 7011-1090</p>
+          <p><strong>Correo</strong>automotrizjamirosc@gmail.com</p>
+          <p><strong>Ubicación</strong>150 m del Súper San Juan, San Carlos</p>
+        </div>
+        <p className="footer-copyright">© 2026 Taller Automotriz Jamiro</p>
       </footer>
 
       {quoteOpen && (
@@ -512,7 +512,7 @@ export default function Home() {
                 <label className="delivery-label">Modalidad<select><option>Instalación en el taller</option><option>Retiro en el taller</option><option>Entrega a domicilio</option></select></label>
                 <button className="button checkout-button">Continuar pedido →</button>
               </>
-            ) : <div className="empty-cart"><span>◇</span><h3>Tu bolsa está vacía</h3><p>Explorá los servicios y productos disponibles.</p><button className="button button-ghost" onClick={() => setCartOpen(false)}>Seguir explorando</button></div>}
+            ) : <div className="empty-cart"><span>◇</span><h3>Tu carrito está vacío</h3><p>Explorá los servicios y productos disponibles.</p><button className="button button-ghost" onClick={() => setCartOpen(false)}>Seguir explorando</button></div>}
           </aside>
         </div>
       )}
