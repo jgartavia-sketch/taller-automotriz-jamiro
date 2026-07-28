@@ -218,7 +218,7 @@ footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: cent
 @media (max-width: 1050px) {
   nav { position: fixed; left: 0; right: 0; top: 84px; display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 20px; background: #090b0d; border-bottom: 1px solid var(--line); }
   nav.nav-open { display: flex; }
-  nav a { padding: 15px; border-bottom: 1px solid var(--line); }
+  nav a { min-height: 48px; padding: 15px; border-bottom: 1px solid var(--line); display: flex; align-items: center; }
   .menu-toggle { display: block; order: 2; }
   .header-actions { margin-left: auto; margin-right: 15px; }
   .hero { grid-template-columns: 1fr; padding-top: 145px; }
@@ -240,6 +240,7 @@ footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: cent
   .brand span { font-size: 16px; }
   .brand strong { font-size: 7px; }
   nav { top: 70px; }
+  .menu-toggle, .cart-button { min-width: 44px; min-height: 44px; }
   .header-actions .button { display: none; }
   .cart-button { font-size: 0; }
   .cart-button span { font-size: 11px; }

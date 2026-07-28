@@ -66,12 +66,22 @@ export default function Home() {
     <main>
       <header className="site-header">
         <Link className="brand" href="/" aria-label="Taller Automotriz Jamiro, inicio">
-          <img src="/logo-jamiro-v2.svg" alt="Taller Automotriz Jamiro" />
+          <img src="/logo-jamiro.png" alt="Taller Automotriz Jamiro" />
           <span><strong>Taller Automotriz</strong>Jamiro</span>
         </Link>
 
-        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">☰</button>
-        <nav className={menuOpen ? "nav-open" : ""}>
+        <button
+          className="menu-toggle"
+          type="button"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={menuOpen}
+          aria-controls="main-navigation"
+        >
+          {menuOpen ? "×" : "☰"}
+        </button>
+        <nav id="main-navigation" className={menuOpen ? "nav-open" : ""} aria-label="Navegación principal">
+          <Link className={isHome ? "active" : ""} href="/" onClick={() => setMenuOpen(false)}>Inicio</Link>
           <Link className={isRegistration ? "active" : ""} href="/registro" onClick={() => setMenuOpen(false)}>Registro</Link>
           <Link className={isServices ? "active" : ""} href="/servicios" onClick={() => setMenuOpen(false)}>Servicios</Link>
           <Link className={isShop ? "active" : ""} href="/tienda" onClick={() => setMenuOpen(false)}>Tienda</Link>
@@ -111,7 +121,7 @@ export default function Home() {
           <div className="logo-stage">
             <div className="orbit orbit-one" />
             <div className="orbit orbit-two" />
-            <img src="/logo-jamiro-v2.svg" alt="Logo de Taller Automotriz Jamiro" />
+            <img src="/logo-jamiro.png" alt="Logo de Taller Automotriz Jamiro" />
           </div>
           <div className="status-card">
             <span className="status-icon">✓</span>
@@ -180,7 +190,7 @@ export default function Home() {
 
           <article className="loyalty-card" aria-label="Vista previa de tarjeta digital">
             <div className="card-top">
-              <img src="/logo-jamiro-v2.svg" alt="" />
+              <img src="/logo-jamiro.png" alt="" />
               <div><small>Cliente frecuente</small><strong>Club Jamiro</strong></div>
               <span>ACTIVA</span>
             </div>
@@ -300,7 +310,7 @@ export default function Home() {
       </section>}
 
       <footer>
-        <div className="brand footer-brand"><img src="/logo-jamiro-v2.svg" alt="" /><span><strong>Taller Automotriz</strong>Jamiro</span></div>
+        <div className="brand footer-brand"><img src="/logo-jamiro.png" alt="" /><span><strong>Taller Automotriz</strong>Jamiro</span></div>
         <p>Especialistas en electromecánica, mecánica automotriz y mantenimiento integral.</p>
         <p>© 2026 Taller Automotriz Jamiro</p>
       </footer>
