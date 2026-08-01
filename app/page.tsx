@@ -5,6 +5,14 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
+const TOKEN_KEY = "jamiro_token";
+
+function authHeaders(): Record<string, string> {
+  const token = typeof window === "undefined" ? "" : localStorage.getItem(TOKEN_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 const services = [
   { icon: "⚡", title: "Electromecánica", text: "Diagnóstico preciso y soluciones para sistemas eléctricos y electrónicos." },
   { icon: "◉", title: "Mecánica general", text: "Mantenimiento y reparación integral para mantenerte siempre en carretera." },
@@ -28,14 +36,13 @@ type CustomerProfile = {
   referrals: number;
 };
 
-const demoProfile: CustomerProfile = {
-  name: "Carlos Sánchez",
-  email: "carlos@ejemplo.com",
-  phone: "+506 8888-8888",
-  customerId: "JAM-2026-001",
-  purchasePoints: 340,
-  referralPoints: 160,
-  referrals: 4,
+type PointMovement = {
+  id: string;
+  kind: string;
+  points: number;
+  amount_colones: number | null;
+  description: string;
+  created_at: string;
 };
 
 const rewards = [
@@ -61,21 +68,35 @@ export default function Home() {
   const [sent, setSent] = useState(false);
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [authMessage, setAuthMessage] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [movements, setMovements] = useState<PointMovement[]>([]);
   const [referralCode, setReferralCode] = useState("");
   const [referralExpiry, setReferralExpiry] = useState("");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const savedProfile = window.localStorage.getItem("jamiro_demo_profile");
-    const savedReferral = window.localStorage.getItem("jamiro_demo_referral");
-    if (savedProfile) setProfile(JSON.parse(savedProfile) as CustomerProfile);
-    if (savedReferral) {
-      const parsed = JSON.parse(savedReferral) as { code: string; expiry: string };
-      if (new Date(parsed.expiry) > new Date()) {
-        setReferralCode(parsed.code);
-        setReferralExpiry(parsed.expiry);
+    const loadSession = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/auth/me`, {
+          cache: "no-store",
+          headers: authHeaders(),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data.customer);
+          setMovements(data.movements || []);
+          if (data.referral) {
+            setReferralCode(data.referral.code);
+            setReferralExpiry(data.referral.expiry);
+          }
+        }
+      } finally {
+        setSessionLoading(false);
       }
-    }
+    };
+    loadSession();
   }, []);
 
   const addToCart = (id: number) => {
@@ -85,29 +106,49 @@ export default function Home() {
 
   const cartProducts = cart.map((id) => products.find((product) => product.id === id)!);
 
-  const registerCustomer = (event: FormEvent<HTMLFormElement>) => {
+  const registerCustomer = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setAuthLoading(true);
+    setAuthError("");
     const data = new FormData(event.currentTarget);
-    const newProfile: CustomerProfile = {
-      name: String(data.get("name") || "Cliente Jamiro"),
-      email: String(data.get("email") || ""),
-      phone: String(data.get("phone") || ""),
-      customerId: `JAM-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-      purchasePoints: 0,
-      referralPoints: 0,
-      referrals: 0,
-    };
-    setProfile(newProfile);
-    window.localStorage.setItem("jamiro_demo_profile", JSON.stringify(newProfile));
+    try {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.get("name"),
+          email: data.get("email"),
+          phone: data.get("phone"),
+          password: data.get("password"),
+          referral: data.get("referral"),
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "No pudimos crear la cuenta.");
+      localStorage.setItem(TOKEN_KEY, result.token);
+      setProfile(result.customer);
+      setAuthMessage("Tu cuenta y tarjeta digital ya están activas.");
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "No pudimos crear la cuenta.");
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
-  const generateReferralCode = () => {
-    const code = `JAMIRO-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-    const expiry = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
-    setReferralCode(code);
-    setReferralExpiry(expiry);
+  const generateReferralCode = async () => {
+    setAuthError("");
+    const response = await fetch(`${API_URL}/api/referrals`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      setAuthError(result.error || "No pudimos generar el código.");
+      return;
+    }
+    setReferralCode(result.code);
+    setReferralExpiry(result.expiry);
     setCopied(false);
-    window.localStorage.setItem("jamiro_demo_referral", JSON.stringify({ code, expiry }));
   };
 
   const copyReferralCode = async () => {
@@ -116,23 +157,37 @@ export default function Home() {
     setCopied(true);
   };
 
-  const loginCustomer = (event: FormEvent<HTMLFormElement>) => {
+  const loginCustomer = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setAuthLoading(true);
+    setAuthError("");
+    setAuthMessage("");
     const data = new FormData(event.currentTarget);
-    const email = String(data.get("email") || "");
-    const current = profile || { ...demoProfile, email };
-    setProfile(current);
-    window.localStorage.setItem("jamiro_demo_profile", JSON.stringify(current));
-    setAuthMessage("Sesión demostrativa iniciada. Ya podés entrar a tu cuenta.");
+    try {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.get("email"), password: data.get("password") }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "No pudimos iniciar sesión.");
+      localStorage.setItem(TOKEN_KEY, result.token);
+      setProfile(result.customer);
+      setAuthMessage("Sesión iniciada correctamente.");
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "No pudimos iniciar sesión.");
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
-  const logoutCustomer = () => {
+  const logoutCustomer = async () => {
+    localStorage.removeItem(TOKEN_KEY);
     setProfile(null);
+    setMovements([]);
     setReferralCode("");
     setReferralExpiry("");
     setAuthMessage("");
-    window.localStorage.removeItem("jamiro_demo_profile");
-    window.localStorage.removeItem("jamiro_demo_referral");
   };
 
   const totalPoints = useMemo(
@@ -246,17 +301,19 @@ export default function Home() {
                   <label>Nombre completo<input name="name" required placeholder="Ej. Carlos Sánchez" /></label>
                   <label>Correo electrónico<input name="email" type="email" required placeholder="correo@ejemplo.com" /></label>
                   <label>WhatsApp<input name="phone" type="tel" required placeholder="+506 8888-8888" /></label>
+                  <label>Contraseña<input name="password" type="password" required minLength={8} placeholder="Mínimo 8 caracteres" /></label>
                   <label>Código de referido <small>Opcional</small><input name="referral" placeholder="Ej. JAMIRO-A7K29Q" /></label>
                   <label className="terms-check"><input type="checkbox" required /><span>Acepto los términos del programa de fidelización.</span></label>
-                  <button className="button" type="submit">Crear mi tarjeta →</button>
+                  {authError && <p className="inline-error">{authError}</p>}
+                  <button className="button" type="submit" disabled={authLoading}>{authLoading ? "Creando cuenta..." : "Crear mi tarjeta →"}</button>
                 </form>
               </>
             ) : (
               <div className="registration-success">
                 <span>✓</span>
-                <p className="eyebrow">Cuenta demostrativa creada</p>
+                <p className="eyebrow">Cuenta activa</p>
                 <h3>¡Bienvenido al Club Jamiro!</h3>
-                <p>Tu tarjeta digital ya está lista y podés verla en Mi cuenta. Cuando conectemos el backend, quedará vinculada de forma segura a tu correo y WhatsApp.</p>
+                <p>Tu tarjeta digital ya está vinculada de forma segura a tu correo y WhatsApp.</p>
                 <Link className="button" href="/mi-cuenta">Ver mi cuenta →</Link>
               </div>
             )}
@@ -294,7 +351,7 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <p className="demo-note">Vista demostrativa · Los datos se guardarán al conectar el backend.</p>
+            <p className="demo-note">Cada ₡100 pagados y confirmados equivalen a 1 punto.</p>
           </article>
         </div>
 
@@ -309,7 +366,7 @@ export default function Home() {
         <div className="auth-copy">
           <p className="eyebrow"><span /> Acceso Club Jamiro</p>
           <h2>Tu vehículo, tus puntos y tu historial en un solo lugar.</h2>
-          <p>Este acceso funciona como demostración del flujo final. El backend agregará contraseña cifrada, recuperación de acceso y sesiones seguras.</p>
+          <p>Ingresá de forma segura para consultar tu tarjeta digital, tus puntos y la actividad registrada por el taller.</p>
           <div className="auth-features">
             <span>✓ Tarjeta digital</span>
             <span>✓ Recompensas</span>
@@ -321,7 +378,8 @@ export default function Home() {
           <form className="registration-form single-column" onSubmit={loginCustomer}>
             <label>Correo electrónico<input name="email" type="email" required placeholder="correo@ejemplo.com" /></label>
             <label>Contraseña<input name="password" type="password" required minLength={6} placeholder="••••••••" /></label>
-            <button className="button" type="submit">Ingresar a mi cuenta →</button>
+            {authError && <p className="inline-error">{authError}</p>}
+            <button className="button" type="submit" disabled={authLoading}>{authLoading ? "Ingresando..." : "Ingresar a mi cuenta →"}</button>
           </form>
           {authMessage && <div className="inline-success">{authMessage}<Link href="/mi-cuenta">Abrir mi cuenta →</Link></div>}
           <p className="auth-switch">¿Todavía no sos parte? <Link href="/registro">Crear cuenta gratis</Link></p>
@@ -332,8 +390,8 @@ export default function Home() {
         {!profile ? (
           <div className="account-empty">
             <p className="eyebrow"><span /> Club Jamiro</p>
-            <h2>Primero ingresá a tu cuenta.</h2>
-            <p>Así podremos mostrar tu tarjeta, tus puntos y tu historial.</p>
+            <h2>{sessionLoading ? "Cargando tu cuenta..." : "Primero ingresá a tu cuenta."}</h2>
+            <p>{sessionLoading ? "Estamos recuperando tu tarjeta digital." : "Así podremos mostrar tu tarjeta, tus puntos y tu historial."}</p>
             <div><Link className="button" href="/login">Ingresar →</Link><Link className="button button-ghost" href="/registro">Registrarme</Link></div>
           </div>
         ) : (
@@ -375,9 +433,12 @@ export default function Home() {
               <div className="account-section">
                 <p className="eyebrow"><span /> Actividad</p><h3>Historial reciente</h3>
                 <div className="history-list">
-                  <div><span>18 JUL</span><p><strong>Cambio de aceite premium</strong><small>Compra confirmada · +125 pts</small></p></div>
-                  <div><span>11 JUL</span><p><strong>Referido registrado</strong><small>Código utilizado · +40 pts</small></p></div>
-                  <div><span>02 JUL</span><p><strong>Escaneo computarizado</strong><small>Servicio completado · +90 pts</small></p></div>
+                  {movements.length ? movements.map((movement) => (
+                    <div key={movement.id}>
+                      <span>{new Date(movement.created_at).toLocaleDateString("es-CR", { day: "2-digit", month: "short" }).toUpperCase()}</span>
+                      <p><strong>{movement.description}</strong><small>{movement.points >= 0 ? "+" : ""}{movement.points} pts</small></p>
+                    </div>
+                  )) : <p className="empty-history">Tus movimientos aparecerán aquí cuando el taller confirme una compra, servicio o ajuste.</p>}
                 </div>
               </div>
             </div>

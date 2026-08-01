@@ -50,11 +50,29 @@ nav a:hover { color: white; }
 .button-ghost { background: rgba(255,255,255,.025); border-color: rgba(255,255,255,.22); box-shadow: none; }
 
 .hero {
-  min-height: 780px; padding: 150px clamp(24px, 7vw, 110px) 90px; position: relative; overflow: hidden;
-  display: grid; grid-template-columns: 1.05fr .95fr; align-items: center;
-  background: radial-gradient(circle at 70% 50%, rgba(62,68,74,.18), transparent 28%), linear-gradient(120deg,#050607 0%,#090b0d 60%,#030304 100%);
+  min-height: 780px;
+  padding: 150px clamp(24px, 7vw, 110px) 90px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  align-items: center;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(5, 6, 7, .96) 0%,
+      rgba(5, 6, 7, .84) 34%,
+      rgba(5, 6, 7, .38) 68%,
+      rgba(5, 6, 7, .25) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(5, 6, 7, .15) 55%,
+      rgba(5, 6, 7, .82) 100%
+    ),
+    url("/images/hero-taller-jamiro.png") center center / cover no-repeat;
 }
-.hero-grid { position: absolute; inset: 0; opacity: .15; background-image: linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px); background-size: 80px 80px; mask-image: linear-gradient(to right,black,transparent 65%); }
+.hero-grid { position: absolute; inset: 0; opacity: .07; background-image: linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px); background-size: 80px 80px; mask-image: linear-gradient(to right,black,transparent 65%); }
 .hero-glow { position: absolute; width: 380px; height: 380px; right: 10%; top: 30%; border-radius: 50%; background: rgba(226,13,24,.08); filter: blur(85px); }
 .hero-copy, .hero-visual { position: relative; z-index: 2; }
 .eyebrow { margin: 0 0 22px; color: #b8bdc2; font-size: 10px; letter-spacing: .23em; text-transform: uppercase; font-weight: 800; }
