@@ -314,7 +314,9 @@ export default function Home() {
                 <p className="eyebrow">Cuenta activa</p>
                 <h3>¡Bienvenido al Club Jamiro!</h3>
                 <p>Tu tarjeta digital ya está vinculada de forma segura a tu correo y WhatsApp.</p>
-                <Link className="button" href="/mi-cuenta">Ver mi cuenta →</Link>
+                <button className="button" type="button" onClick={logoutCustomer}>
+  Cerrar sesión
+</button>
               </div>
             )}
           </div>
