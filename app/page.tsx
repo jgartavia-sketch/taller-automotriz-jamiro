@@ -16,10 +16,13 @@ function authHeaders(): Record<string, string> {
 }
 
 const services = [
-  { icon: "⚡", title: "Electromecánica", text: "Diagnóstico preciso y soluciones para sistemas eléctricos y electrónicos." },
-  { icon: "◉", title: "Mecánica general", text: "Mantenimiento y reparación integral para mantenerte siempre en carretera." },
-  { icon: "✓", title: "Pre-DEKRA", text: "Inspección preventiva para que llegués a la revisión con todo bajo control." },
-  { icon: "▰", title: "Cambio de aceite", text: "Lubricantes, filtros y servicio profesional según las necesidades de tu vehículo." },
+  { icon: "⚙", title: "Mecánica general", text: "Dirección, suspensión, frenos, motor y transmisión.", specialties: ["Dirección", "Suspensión", "Frenos", "Motor", "Transmisión"] },
+  { icon: "⚡", title: "Electromecánica", text: "Diagnóstico computarizado, redes, módulos y electricidad.", specialties: ["Diagnóstico computarizado", "Módulos multiplexados y redes", "Uso de osciloscopio", "Electricidad básica"] },
+  { icon: "◉", title: "Limpieza de inyectores", text: "Servicio técnico para recuperar respuesta y eficiencia del motor.", specialties: ["Revisión", "Limpieza", "Prueba de funcionamiento"] },
+  { icon: "◆", title: "Pintura y enderezado", text: "Corrección de golpes y acabado para devolverle presencia a tu vehículo.", specialties: ["Valoración de daños", "Enderezado", "Pintura automotriz"] },
+  { icon: "≈", title: "Autolavado", text: "Limpieza y cuidado para mantener tu vehículo en excelente estado.", specialties: ["Lavado exterior", "Limpieza interior"] },
+  { icon: "▰", title: "Lubricentro", text: "Aceites, lubricantes y mantenimiento preventivo según tu vehículo.", specialties: ["Cambio de aceite", "Cambio de filtros", "Revisión de fluidos"] },
+  { icon: "↗", title: "Servicio de grúa", text: "Asistencia para trasladar tu vehículo cuando no puede continuar.", specialties: ["Traslado de vehículo", "Asistencia en carretera"] },
 ];
 
 type CustomerProfile = {
@@ -73,6 +76,9 @@ export default function Home() {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [partRequestLoading, setPartRequestLoading] = useState(false);
   const [partRequestError, setPartRequestError] = useState("");
+  const [selectedService, setSelectedService] = useState("Mecánica general");
+  const [serviceRequestLoading, setServiceRequestLoading] = useState(false);
+  const [serviceRequestError, setServiceRequestError] = useState("");
 
   useEffect(() => {
     const loadSession = async () => {
@@ -148,6 +154,55 @@ export default function Home() {
       );
     } finally {
       setPartRequestLoading(false);
+    }
+  };
+
+  const requestService = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setServiceRequestLoading(true);
+    setServiceRequestError("");
+
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const payload = {
+      name: String(data.get("name") || ""),
+      brand: String(data.get("brand") || ""),
+      model: String(data.get("model") || ""),
+      year: String(data.get("year") || ""),
+      service: String(data.get("service") || ""),
+      problem: String(data.get("problem") || ""),
+      preferredDate: String(data.get("preferredDate") || ""),
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/api/service-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "No pudimos registrar la solicitud.");
+
+      const message = [
+        "Hola, Taller Automotriz Jamiro. Quiero solicitar un servicio:",
+        "",
+        `Solicitud: ${result.request.id}`,
+        `Nombre: ${payload.name}`,
+        `Vehículo: ${payload.brand} ${payload.model} ${payload.year}`,
+        `Servicio: ${payload.service}`,
+        `Problema o necesidad: ${payload.problem}`,
+        `Fecha preferida: ${payload.preferredDate || "Por coordinar"}`,
+        "",
+        "Entiendo que la fecha debe ser confirmada por el taller.",
+      ].join("\n");
+
+      window.open(`https://wa.me/50670111090?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      form.reset();
+      setSelectedService("Mecánica general");
+    } catch (error) {
+      setServiceRequestError(error instanceof Error ? error.message : "No pudimos registrar la solicitud.");
+    } finally {
+      setServiceRequestLoading(false);
     }
   };
 
@@ -559,9 +614,9 @@ export default function Home() {
           </div>
           <div className="process-grid">
             {[
-              ["01", "Elegí", "Seleccioná un servicio, producto o enviá los síntomas del vehículo."],
-              ["02", "Cotizá", "Recibí una propuesta clara antes de aprobar cualquier trabajo."],
-              ["03", "Agendá", "Coordiná retiro, entrega o instalación según lo que necesités."],
+              ["01", "Elegí", "Seleccioná el servicio y contanos qué necesita tu vehículo."],
+              ["02", "Solicitá", "La solicitud queda registrada y llega ordenada a WhatsApp."],
+              ["03", "Coordiná", "Jamiro confirma disponibilidad y fecha directamente con vos."],
               ["04", "Sumá puntos", "Con cada compra o servicio confirmado crece tu saldo Jamiro."],
             ].map(([number, title, text]) => (
               <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>
@@ -578,10 +633,47 @@ export default function Home() {
               <span className="service-icon">{service.icon}</span>
               <h3>{service.title}</h3>
               <p>{service.text}</p>
-              <button onClick={() => setQuoteOpen(true)}>Cotizar servicio <b>↗</b></button>
+              <ul>{service.specialties.map((specialty) => <li key={specialty}>{specialty}</li>)}</ul>
+              <button type="button" onClick={() => {
+                setSelectedService(service.title);
+                document.getElementById("solicitar-servicio")?.scrollIntoView({ behavior: "smooth" });
+              }}>Solicitar servicio <b>↗</b></button>
             </article>
           ))}
         </div>
+
+        <article className="service-request-panel" id="solicitar-servicio">
+          <div className="service-request-copy">
+            <p className="eyebrow"><span /> Solicitud registrada</p>
+            <h3>Contanos qué necesita tu vehículo.</h3>
+            <p>Guardaremos la solicitud para darle seguimiento desde el panel y luego abriremos WhatsApp para coordinar los detalles.</p>
+            <div className="parts-benefits">
+              <span>✓ Seguimiento interno</span>
+              <span>✓ Atención por WhatsApp</span>
+              <span>✓ Fecha sujeta a confirmación</span>
+            </div>
+          </div>
+          <form className="service-request-form" onSubmit={requestService}>
+            <label>Nombre completo<input name="name" required placeholder="Ej. Carlos Sánchez" /></label>
+            <div className="form-row">
+              <label>Marca<input name="brand" required placeholder="Ej. Toyota" /></label>
+              <label>Modelo<input name="model" required placeholder="Ej. Corolla" /></label>
+            </div>
+            <div className="form-row">
+              <label>Año<input name="year" required inputMode="numeric" pattern="[0-9]{4}" placeholder="Ej. 2018" /></label>
+              <label>Servicio
+                <select name="service" value={selectedService} onChange={(event) => setSelectedService(event.target.value)} required>
+                  {services.map((service) => <option key={service.title} value={service.title}>{service.title}</option>)}
+                </select>
+              </label>
+            </div>
+            <label>Descripción del problema<textarea name="problem" required placeholder="Contanos qué síntomas presenta o qué trabajo necesitás." /></label>
+            <label>Fecha preferida <small>Opcional; no confirma una cita</small><input name="preferredDate" type="date" /></label>
+            {serviceRequestError && <p className="inline-error">{serviceRequestError}</p>}
+            <button className="button" type="submit" disabled={serviceRequestLoading}>{serviceRequestLoading ? "Registrando solicitud..." : <>Enviar y coordinar por WhatsApp <b>→</b></>}</button>
+            <small className="form-note">Jamiro confirmará por WhatsApp la fecha y disponibilidad del servicio.</small>
+          </form>
+        </article>
       </section>}
 
       {isShop && <section className="section shop page-section" id="tienda">
@@ -628,7 +720,7 @@ export default function Home() {
                 <button className="button" type="submit" disabled={partRequestLoading}>
                   {partRequestLoading ? "Registrando solicitud..." : <>Consultar por WhatsApp <b>→</b></>}
                 </button>
-              <small className="form-note">El formulario no guarda tus datos; prepara el mensaje y abre el WhatsApp oficial de Jamiro.</small>
+              <small className="form-note">La solicitud queda registrada para seguimiento y luego abre el WhatsApp oficial de Jamiro.</small>
             </form>
           </article>
         </div>
@@ -639,7 +731,12 @@ export default function Home() {
           <p className="eyebrow"><span /> Taller Automotriz Jamiro</p>
           <h2>16 años haciendo que la confianza vuelva a la carretera.</h2>
           <p>Experiencia real en electromecánica, mecánica general y mantenimiento automotriz, con atención clara antes, durante y después de cada trabajo.</p>
-          <a className="button button-ghost" href="https://www.facebook.com/profile.php?id=100078892144883" target="_blank" rel="noreferrer">Conocenos en Facebook →</a>
+          <div className="about-actions">
+            <a className="button button-ghost" href="https://www.facebook.com/profile.php?id=100078892144883" target="_blank" rel="noreferrer">Conocenos en Facebook →</a>
+            <a className="button" href="https://www.google.com/maps/search/?api=1&query=Taller%20Automotriz%20Jamiro%2C%20San%20Carlos%2C%20Costa%20Rica" target="_blank" rel="noreferrer">Llegar con Google Maps →</a>
+            <a className="button button-ghost" href="https://www.waze.com/ul?q=Taller%20Automotriz%20Jamiro%2C%20San%20Carlos%2C%20Costa%20Rica&navigate=yes" target="_blank" rel="noreferrer">Llegar con Waze →</a>
+          </div>
+          <p className="location-note">150 metros del Súper San Juan, San Carlos.</p>
         </div>
         <div className="about-stat"><strong>16</strong><span>años de experiencia</span><small>San Carlos, Costa Rica</small></div>
       </section>}

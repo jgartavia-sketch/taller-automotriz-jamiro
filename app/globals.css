@@ -116,8 +116,20 @@ nav a:hover { color: white; }
 .service-icon { width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid rgba(226,13,24,.35); color: var(--red-bright); font-weight: 900; font-size: 20px; }
 .service-card h3 { margin: 55px 0 12px; font-size: 19px; text-transform: uppercase; font-style: italic; }
 .service-card p { min-height: 62px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.service-card ul { min-height: 116px; margin: 18px 0 24px; padding: 0; list-style: none; color: #cbd0d4; font-size: 10px; line-height: 1.8; }
+.service-card li::before { content: "✓"; margin-right: 8px; color: var(--red-bright); font-weight: 900; }
 .service-card button { padding: 8px 0; border: 0; background: none; color: white; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
 .service-card button b { color: var(--red); margin-left: 8px; }
+.service-request-panel { scroll-margin-top: 110px; display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(35px,6vw,85px); margin-top: 24px; padding: clamp(30px,5vw,65px); border: 1px solid var(--line); background: radial-gradient(circle at 10% 15%,rgba(226,13,24,.12),transparent 30%),linear-gradient(145deg,#101316,#080a0c); }
+.service-request-copy h3 { margin: 10px 0 18px; font-size: clamp(30px,4vw,54px); line-height: 1; letter-spacing: -.035em; text-transform: uppercase; font-style: italic; }
+.service-request-copy > p:not(.eyebrow) { color: var(--muted); line-height: 1.75; }
+.service-request-form { display: grid; gap: 16px; padding: clamp(22px,3vw,34px); border: 1px solid var(--line); background: rgba(255,255,255,.025); }
+.service-request-form label { display: grid; gap: 8px; color: #d8dcdf; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.service-request-form label small { color: var(--muted); font-size: 8px; }
+.service-request-form input, .service-request-form textarea, .service-request-form select { width: 100%; padding: 14px; border: 1px solid var(--line); outline: none; background: #080a0c; color: white; font: inherit; text-transform: none; letter-spacing: 0; color-scheme: dark; }
+.service-request-form input:focus, .service-request-form textarea:focus, .service-request-form select:focus { border-color: var(--red); }
+.service-request-form textarea { min-height: 115px; resize: vertical; }
+.service-request-form .button { width: 100%; }
 
 .shop { background: #0a0c0e; }
 .shop-sections { display: grid; gap: 22px; }
@@ -265,6 +277,8 @@ nav a:hover { color: white; }
 .about-stat strong { color: var(--red-bright); font-size: clamp(90px,13vw,170px); line-height: .8; font-style: italic; }
 .about-stat span { margin-top: 18px; text-transform: uppercase; font-style: italic; font-weight: 900; }
 .about-stat small { margin-top: 10px; color: var(--muted); }
+.about-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.location-note { margin: 16px 0 0 !important; color: #d8dcdf !important; font-size: 11px; }
 .contact-details { display: flex; flex-wrap: wrap; gap: 16px 24px; margin-top: 25px; }
 .contact-details a, .contact-details span { color: #b9bec3; font-size: 11px; text-decoration: none; }
 .contact-details a:hover { color: white; }
@@ -330,6 +344,7 @@ footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: cent
   .product-grid { grid-template-columns: repeat(2,1fr); }
   .product-card:last-child { grid-column: span 2; }
   .used-parts-panel { grid-template-columns: 1fr; }
+  .service-request-panel { grid-template-columns: 1fr; }
   .loyalty-layout { grid-template-columns: 1fr; }
   .auth-page, .account-grid { grid-template-columns: 1fr; }
 }
@@ -369,6 +384,10 @@ footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: cent
   .catalog-symbol { width: 150px; }
   .used-parts-panel { padding: 22px; }
   .used-parts-form { padding: 18px; }
+  .service-request-panel { padding: 22px; }
+  .service-request-form { padding: 18px; }
+  .about-actions { flex-direction: column; }
+  .about-actions .button { width: 100%; }
   .registration-form, .points-split, .benefit-strip, .about { grid-template-columns: 1fr; }
   .registration-form .terms-check, .registration-form .button { grid-column: auto; }
   .referral-generator { align-items: stretch; flex-direction: column; }
