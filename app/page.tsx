@@ -20,12 +20,6 @@ const services = [
   { icon: "▰", title: "Cambio de aceite", text: "Lubricantes, filtros y servicio profesional según las necesidades de tu vehículo." },
 ];
 
-const products = [
-  { id: 1, tag: "Más vendido", icon: "OIL", title: "Cambio de aceite premium", detail: "Aceite + filtro + revisión de 15 puntos", price: "₡32.500" },
-  { id: 2, tag: "Diagnóstico", icon: "SCAN", title: "Escaneo computarizado", detail: "Lectura profesional y reporte de fallas", price: "₡18.000" },
-  { id: 3, tag: "Seguridad", icon: "DEKRA", title: "Inspección pre-DEKRA", detail: "Chequeo preventivo completo", price: "₡22.500" },
-];
-
 type CustomerProfile = {
   name: string;
   email: string;
@@ -61,8 +55,6 @@ export default function Home() {
   const isContact = pathname === "/contacto";
   const isLogin = pathname === "/login";
   const isAccount = pathname === "/mi-cuenta";
-  const [cart, setCart] = useState<number[]>([]);
-  const [cartOpen, setCartOpen] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [sent, setSent] = useState(false);
@@ -101,12 +93,22 @@ export default function Home() {
     loadSession();
   }, []);
 
-  const addToCart = (id: number) => {
-    setCart((current) => [...current, id]);
-    setCartOpen(true);
-  };
+  const requestUsedPart = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const message = [
+      "Hola, Taller Automotriz Jamiro. Necesito cotizar un repuesto usado:",
+      "",
+      `Nombre: ${data.get("name")}`,
+      `Marca del vehículo: ${data.get("brand")}`,
+      `Modelo: ${data.get("model")}`,
+      `Año: ${data.get("year")}`,
+      `Repuesto solicitado: ${data.get("part")}`,
+      `Detalles adicionales: ${data.get("details") || "Sin detalles adicionales"}`,
+    ].join("\n");
 
-  const cartProducts = cart.map((id) => products.find((product) => product.id === id)!);
+    window.open(`https://wa.me/50670111090?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+  };
 
   const registerCustomer = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -224,9 +226,6 @@ export default function Home() {
         </nav>
 
         <div className="header-actions">
-          <button className="cart-button" onClick={() => setCartOpen(true)} aria-label="Ver carrito">
-            Carrito <span>{cart.length}</span>
-          </button>
           <button className="button button-small" onClick={() => setQuoteOpen(true)}>Cotizar ahora</button>
           <Link className="account-link" href={profile ? "/mi-cuenta" : "/login"}>{profile ? "Mi cuenta" : "Ingresar"}</Link>
         </div>
@@ -542,25 +541,47 @@ export default function Home() {
 
       {isShop && <section className="section shop page-section" id="tienda">
         <div className="section-heading">
-          <div><p className="eyebrow"><span /> Tienda Jamiro</p><h2>Servicios listos para comprar.</h2></div>
-          <p>Comprá ahora y elegí retiro, entrega o instalación profesional en nuestro taller.</p>
+          <div><p className="eyebrow"><span /> Tienda Jamiro</p><h2>Productos y repuestos para seguir avanzando.</h2></div>
+          <p>Estamos preparando una experiencia más clara para que encontrés lo que tu vehículo necesita.</p>
         </div>
-        <div className="product-grid">
-          {products.map((product) => (
-            <article className="product-card" key={product.id}>
-              <div className="product-art">
-                <span>{product.icon}</span>
-                <small>{product.tag}</small>
+
+        <div className="shop-sections">
+          <article className="catalog-coming-soon">
+            <div className="catalog-symbol" aria-hidden="true">J</div>
+            <div>
+              <p className="eyebrow"><span /> Productos nuevos</p>
+              <h3>Estamos actualizando nuestro catálogo en línea.</h3>
+              <p>Muy pronto encontrarás aquí todos nuestros productos disponibles, con información clara para elegir con confianza.</p>
+              <span className="coming-soon-badge">Próximamente</span>
+            </div>
+          </article>
+
+          <article className="used-parts-panel">
+            <div className="used-parts-copy">
+              <p className="eyebrow"><span /> Más de 1.000 repuestos usados</p>
+              <h3>Decinos qué repuesto necesitás.</h3>
+              <p>Completá los datos de tu vehículo. Al enviar, WhatsApp abrirá una solicitud ordenada para que el equipo de Jamiro revise disponibilidad.</p>
+              <div className="parts-benefits">
+                <span>✓ Consulta rápida</span>
+                <span>✓ Atención directa</span>
+                <span>✓ Sin crear otra cuenta</span>
               </div>
-              <div className="product-copy">
-                <p>{product.detail}</p>
-                <h3>{product.title}</h3>
-                <div><strong>{product.price}</strong><button onClick={() => addToCart(product.id)}>Agregar +</button></div>
+            </div>
+
+            <form className="used-parts-form" onSubmit={requestUsedPart}>
+              <label>Nombre completo<input name="name" required placeholder="Ej. Carlos Sánchez" /></label>
+              <div className="form-row">
+                <label>Marca del vehículo<input name="brand" required placeholder="Ej. Toyota" /></label>
+                <label>Modelo<input name="model" required placeholder="Ej. Corolla" /></label>
               </div>
-            </article>
-          ))}
+              <label>Año del vehículo<input name="year" required inputMode="numeric" pattern="[0-9]{4}" placeholder="Ej. 2018" /></label>
+              <label>Repuesto que necesitás<input name="part" required placeholder="Ej. alternador, bumper, compresor..." /></label>
+              <label>Detalles adicionales <small>Opcional</small><textarea name="details" placeholder="Motor, versión, lado del vehículo o cualquier dato que ayude a identificarlo." /></label>
+              <button className="button" type="submit">Consultar por WhatsApp →</button>
+              <small className="form-note">El formulario no guarda tus datos; prepara el mensaje y abre el WhatsApp oficial de Jamiro.</small>
+            </form>
+          </article>
         </div>
-        <button className="button button-ghost shop-all">Ver todos los productos →</button>
       </section>}
 
       {isAbout && <section className="section about page-section" id="nosotros">
@@ -623,22 +644,6 @@ export default function Home() {
         </div>
       )}
 
-      {cartOpen && (
-        <div className="drawer-backdrop" onMouseDown={() => setCartOpen(false)}>
-          <aside className="drawer" onMouseDown={(event) => event.stopPropagation()}>
-            <div className="drawer-head"><div><p className="eyebrow"><span /> Tienda Jamiro</p><h2>Tu pedido</h2></div><button onClick={() => setCartOpen(false)}>×</button></div>
-            {cartProducts.length ? (
-              <>
-                <div className="cart-list">
-                  {cartProducts.map((product, index) => <div key={`${product.id}-${index}`}><span>{product.icon}</span><div><strong>{product.title}</strong><small>{product.price}</small></div><button onClick={() => setCart((items) => items.filter((_, itemIndex) => itemIndex !== index))}>×</button></div>)}
-                </div>
-                <label className="delivery-label">Modalidad<select><option>Instalación en el taller</option><option>Retiro en el taller</option><option>Entrega a domicilio</option></select></label>
-                <button className="button checkout-button">Continuar pedido →</button>
-              </>
-            ) : <div className="empty-cart"><span>◇</span><h3>Tu carrito está vacío</h3><p>Explorá los servicios y productos disponibles.</p><button className="button button-ghost" onClick={() => setCartOpen(false)}>Seguir explorando</button></div>}
-          </aside>
-        </div>
-      )}
     </main>
   );
 }
