@@ -320,7 +320,7 @@ export default function Home() {
           <Link className={isRegistration ? "active" : ""} href="/registro" onClick={() => setMenuOpen(false)}>Registro</Link>
           <Link className={isServices ? "active" : ""} href="/servicios" onClick={() => setMenuOpen(false)}>Servicios</Link>
           <Link className={isShop ? "active" : ""} href="/tienda" onClick={() => setMenuOpen(false)}>Tienda</Link>
-          <Link className={isAbout ? "active" : ""} href="/nosotros" onClick={() => setMenuOpen(false)}>Nosotros y contacto</Link>
+          <Link className={isAbout ? "active" : ""} href="/nosotros" onClick={() => setMenuOpen(false)}>Nosotros</Link>
         </nav>
 
         <div className="header-actions">
@@ -339,7 +339,7 @@ export default function Home() {
             Diagnóstico preciso, servicio transparente y soluciones que te devuelven a la carretera con total confianza.
           </p>
           <div className="hero-actions">
-            <button className="button" onClick={() => setQuoteOpen(true)}>Solicitar cotización <b>→</b></button>
+            <Link className="button" href="/servicios">Solicitar cotización <b>→</b></Link>
             <Link className="button button-ghost" href="/tienda">Explorar tienda</Link>
           </div>
           <div className="trust-row">
@@ -374,7 +374,7 @@ export default function Home() {
           <Link href="/registro"><span>01</span><h3>Club Jamiro</h3><p>Creá tu tarjeta, consultá puntos y compartí códigos de referido.</p><b>Ir a Registro →</b></Link>
           <Link href="/servicios"><span>02</span><h3>Servicios</h3><p>Conocé el proceso y las soluciones disponibles para tu vehículo.</p><b>Ver servicios →</b></Link>
           <Link href="/tienda"><span>03</span><h3>Tienda</h3><p>Explorá productos y servicios listos para agregar a tu pedido.</p><b>Entrar a la tienda →</b></Link>
-          <Link href="/nosotros"><span>04</span><h3>Nosotros y contacto</h3><p>Conocé nuestra experiencia, escribinos o encontrá la ruta al taller.</p><b>Conocer y contactar →</b></Link>
+          <Link href="/nosotros"><span>04</span><h3>Nosotros</h3><p>Conocé nuestra experiencia, escribinos o encontrá la ruta al taller.</p><b>Conocernos →</b></Link>
         </div>
       </section>}
 
