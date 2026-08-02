@@ -56,8 +56,7 @@ export default function Home() {
   const isRegistration = pathname === "/registro";
   const isServices = pathname === "/servicios";
   const isShop = pathname === "/tienda";
-  const isAbout = pathname === "/nosotros";
-  const isContact = pathname === "/contacto";
+  const isAbout = pathname === "/nosotros" || pathname === "/contacto";
   const isLogin = pathname === "/login";
   const isAccount = pathname === "/mi-cuenta";
   const [quoteOpen, setQuoteOpen] = useState(false);
@@ -321,8 +320,7 @@ export default function Home() {
           <Link className={isRegistration ? "active" : ""} href="/registro" onClick={() => setMenuOpen(false)}>Registro</Link>
           <Link className={isServices ? "active" : ""} href="/servicios" onClick={() => setMenuOpen(false)}>Servicios</Link>
           <Link className={isShop ? "active" : ""} href="/tienda" onClick={() => setMenuOpen(false)}>Tienda</Link>
-          <Link className={isAbout ? "active" : ""} href="/nosotros" onClick={() => setMenuOpen(false)}>Nosotros</Link>
-          <Link className={isContact ? "active" : ""} href="/contacto" onClick={() => setMenuOpen(false)}>Contacto</Link>
+          <Link className={isAbout ? "active" : ""} href="/nosotros" onClick={() => setMenuOpen(false)}>Nosotros y contacto</Link>
         </nav>
 
         <div className="header-actions">
@@ -376,8 +374,7 @@ export default function Home() {
           <Link href="/registro"><span>01</span><h3>Club Jamiro</h3><p>Creá tu tarjeta, consultá puntos y compartí códigos de referido.</p><b>Ir a Registro →</b></Link>
           <Link href="/servicios"><span>02</span><h3>Servicios</h3><p>Conocé el proceso y las soluciones disponibles para tu vehículo.</p><b>Ver servicios →</b></Link>
           <Link href="/tienda"><span>03</span><h3>Tienda</h3><p>Explorá productos y servicios listos para agregar a tu pedido.</p><b>Entrar a la tienda →</b></Link>
-          <Link href="/nosotros"><span>04</span><h3>Nosotros</h3><p>Conocé la experiencia que respalda cada trabajo.</p><b>Conocer Jamiro →</b></Link>
-          <Link href="/contacto"><span>05</span><h3>Contacto</h3><p>Cotizá, escribinos por WhatsApp o encontrá el taller.</p><b>Hablemos →</b></Link>
+          <Link href="/nosotros"><span>04</span><h3>Nosotros y contacto</h3><p>Conocé nuestra experiencia, escribinos o encontrá la ruta al taller.</p><b>Conocer y contactar →</b></Link>
         </div>
       </section>}
 
@@ -726,32 +723,34 @@ export default function Home() {
         </div>
       </section>}
 
-      {isAbout && <section className="section about page-section" id="nosotros">
-        <div className="about-copy">
-          <p className="eyebrow"><span /> Taller Automotriz Jamiro</p>
-          <h2>16 años haciendo que la confianza vuelva a la carretera.</h2>
-          <p>Experiencia real en electromecánica, mecánica general y mantenimiento automotriz, con atención clara antes, durante y después de cada trabajo.</p>
-          <div className="about-actions">
-            <a className="button button-ghost" href="https://www.facebook.com/profile.php?id=100078892144883" target="_blank" rel="noreferrer">Conocenos en Facebook →</a>
-            <a className="button" href="https://www.google.com/maps/search/?api=1&query=Taller%20Automotriz%20Jamiro%2C%20San%20Carlos%2C%20Costa%20Rica" target="_blank" rel="noreferrer">Llegar con Google Maps →</a>
-            <a className="button button-ghost" href="https://www.waze.com/ul?q=Taller%20Automotriz%20Jamiro%2C%20San%20Carlos%2C%20Costa%20Rica&navigate=yes" target="_blank" rel="noreferrer">Llegar con Waze →</a>
+      {isAbout && <section className="section about-contact page-section" id="nosotros">
+        <div className="about-contact-intro">
+          <div className="about-copy">
+            <p className="eyebrow"><span /> Taller Automotriz Jamiro</p>
+            <h2>16 años haciendo que la confianza vuelva a la carretera.</h2>
+            <p>Experiencia real en electromecánica, mecánica general y mantenimiento automotriz, con atención clara antes, durante y después de cada trabajo.</p>
           </div>
-          <p className="location-note">150 metros del Súper San Juan, San Carlos.</p>
+          <div className="about-stat"><strong>16</strong><span>años de experiencia</span><small>San Carlos, Costa Rica</small></div>
         </div>
-        <div className="about-stat"><strong>16</strong><span>años de experiencia</span><small>San Carlos, Costa Rica</small></div>
-      </section>}
 
-      {isContact && <section className="cta-section page-section" id="contacto">
-        <div>
-          <p className="eyebrow"><span /> Estamos listos</p>
-          <h2>Tu próximo viaje empieza con un vehículo en buenas manos.</h2>
-          <div className="contact-details">
-            <a href="https://wa.me/50670111090" target="_blank" rel="noreferrer">WhatsApp: +506 7011-1090</a>
-            <a href="mailto:automotrizjamirosc@gmail.com">automotrizjamirosc@gmail.com</a>
-            <span>150 m del Súper San Juan, San Carlos</span>
+        <div className="contact-hub">
+          <div className="contact-hub-copy">
+            <p className="eyebrow"><span /> Contacto y ubicación</p>
+            <h3>Estamos listos para ayudarte.</h3>
+            <p>Escribinos, conocé nuestro trabajo en Facebook o abrí la ruta al taller desde tu aplicación favorita.</p>
+            <div className="contact-details">
+              <a href="https://wa.me/50670111090" target="_blank" rel="noreferrer"><small>Teléfono y WhatsApp</small><strong>+506 7011-1090</strong></a>
+              <a href="mailto:automotrizjamirosc@gmail.com"><small>Correo</small><strong>automotrizjamirosc@gmail.com</strong></a>
+              <span><small>Ubicación</small><strong>150 m del Súper San Juan, San Carlos</strong></span>
+            </div>
+          </div>
+          <div className="about-actions">
+            <a className="button" href="https://wa.me/50670111090" target="_blank" rel="noreferrer">Escribir por WhatsApp →</a>
+            <a className="button button-ghost" href="https://www.google.com/maps/search/?api=1&query=Taller%20Automotriz%20Jamiro%2C%20San%20Carlos%2C%20Costa%20Rica" target="_blank" rel="noreferrer">Llegar con Google Maps →</a>
+            <a className="button button-ghost" href="https://www.waze.com/ul?q=Taller%20Automotriz%20Jamiro%2C%20San%20Carlos%2C%20Costa%20Rica&navigate=yes" target="_blank" rel="noreferrer">Llegar con Waze →</a>
+            <a className="button button-ghost" href="https://www.facebook.com/profile.php?id=100078892144883" target="_blank" rel="noreferrer">Conocenos en Facebook →</a>
           </div>
         </div>
-        <a className="button" href="https://wa.me/50670111090" target="_blank" rel="noreferrer">Escribir por WhatsApp →</a>
       </section>}
 
       <footer>
