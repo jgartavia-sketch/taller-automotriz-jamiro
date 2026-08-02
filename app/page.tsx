@@ -324,7 +324,7 @@ export default function Home() {
         </nav>
 
         <div className="header-actions">
-          <button className="button button-small" onClick={() => setQuoteOpen(true)}>Cotizar ahora</button>
+          <Link className="button button-small" href="/servicios#solicitar-servicio">Cotizar ahora</Link>
           <Link className="account-link" href={profile ? "/mi-cuenta" : "/login"}>{profile ? "Mi cuenta" : "Ingresar"}</Link>
         </div>
       </header>
@@ -339,7 +339,7 @@ export default function Home() {
             Diagnóstico preciso, servicio transparente y soluciones que te devuelven a la carretera con total confianza.
           </p>
           <div className="hero-actions">
-            <Link className="button" href="/servicios">Solicitar cotización <b>→</b></Link>
+            <Link className="button" href="/servicios#solicitar-servicio">Solicitar cotización <b>→</b></Link>
             <Link className="button button-ghost" href="/tienda">Explorar tienda</Link>
           </div>
           <div className="trust-row">
