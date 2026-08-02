@@ -1,5 +1,7 @@
 "use client";
 
+// Versión corregida: logo oficial en Tienda y hero optimizado para móvil.
+
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
@@ -590,7 +592,9 @@ export default function Home() {
 
         <div className="shop-sections">
           <article className="catalog-coming-soon">
-            <div className="catalog-symbol" aria-hidden="true">J</div>
+            <div className="catalog-symbol">
+              <img src="/logo-jamiro.png" alt="Logo de Taller Automotriz Jamiro" />
+            </div>
             <div>
               <p className="eyebrow"><span /> Productos nuevos</p>
               <h3>Estamos actualizando nuestro catálogo en línea.</h3>
