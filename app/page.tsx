@@ -69,6 +69,8 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [partRequestLoading, setPartRequestLoading] = useState(false);
+  const [partRequestError, setPartRequestError] = useState("");
 
   useEffect(() => {
     const loadSession = async () => {
@@ -93,21 +95,58 @@ export default function Home() {
     loadSession();
   }, []);
 
-  const requestUsedPart = (event: FormEvent<HTMLFormElement>) => {
+  const requestUsedPart = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const message = [
-      "Hola, Taller Automotriz Jamiro. Necesito cotizar un repuesto usado:",
-      "",
-      `Nombre: ${data.get("name")}`,
-      `Marca del vehículo: ${data.get("brand")}`,
-      `Modelo: ${data.get("model")}`,
-      `Año: ${data.get("year")}`,
-      `Repuesto solicitado: ${data.get("part")}`,
-      `Detalles adicionales: ${data.get("details") || "Sin detalles adicionales"}`,
-    ].join("\n");
+    setPartRequestLoading(true);
+    setPartRequestError("");
 
-    window.open(`https://wa.me/50670111090?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const payload = {
+      name: String(data.get("name") || ""),
+      brand: String(data.get("brand") || ""),
+      model: String(data.get("model") || ""),
+      year: String(data.get("year") || ""),
+      part: String(data.get("part") || ""),
+      details: String(data.get("details") || ""),
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/api/used-part-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "No pudimos registrar la solicitud.");
+      }
+
+      const message = [
+        "Hola, Taller Automotriz Jamiro. Necesito cotizar un repuesto usado:",
+        "",
+        `Solicitud: ${result.request.id}`,
+        `Nombre: ${payload.name}`,
+        `Marca del vehículo: ${payload.brand}`,
+        `Modelo: ${payload.model}`,
+        `Año: ${payload.year}`,
+        `Repuesto solicitado: ${payload.part}`,
+        `Detalles adicionales: ${payload.details || "Sin detalles adicionales"}`,
+      ].join("\n");
+
+      window.open(
+        `https://wa.me/50670111090?text=${encodeURIComponent(message)}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+      form.reset();
+    } catch (error) {
+      setPartRequestError(
+        error instanceof Error ? error.message : "No pudimos registrar la solicitud.",
+      );
+    } finally {
+      setPartRequestLoading(false);
+    }
   };
 
   const registerCustomer = async (event: FormEvent<HTMLFormElement>) => {
@@ -131,7 +170,11 @@ export default function Home() {
       if (!response.ok) throw new Error(result.error || "No pudimos crear la cuenta.");
       localStorage.setItem(TOKEN_KEY, result.token);
       setProfile(result.customer);
-      setAuthMessage("Tu cuenta y tarjeta digital ya están activas.");
+      setAuthMessage(
+        result.notifications?.welcomeEmailSent
+          ? "Tu cuenta está activa. Te enviamos el correo de confirmación."
+          : "Tu cuenta está activa, pero el correo de confirmación no pudo enviarse. El equipo ya puede revisar el registro.",
+      );
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : "No pudimos crear la cuenta.");
     } finally {
@@ -343,7 +386,7 @@ export default function Home() {
                 <span>✓</span>
                 <p className="eyebrow">Cuenta activa</p>
                 <h3>¡Bienvenido al Club Jamiro!</h3>
-                <p>Tu tarjeta digital ya está vinculada de forma segura a tu correo y WhatsApp.</p>
+                <p>{authMessage || "Tu tarjeta digital ya está vinculada de forma segura a tu correo y WhatsApp."}</p>
                 <button className="button" type="button" onClick={logoutCustomer}>
                   Cerrar sesión
                 </button>
@@ -577,7 +620,10 @@ export default function Home() {
               <label>Año del vehículo<input name="year" required inputMode="numeric" pattern="[0-9]{4}" placeholder="Ej. 2018" /></label>
               <label>Repuesto que necesitás<input name="part" required placeholder="Ej. alternador, bumper, compresor..." /></label>
               <label>Detalles adicionales <small>Opcional</small><textarea name="details" placeholder="Motor, versión, lado del vehículo o cualquier dato que ayude a identificarlo." /></label>
-              <button className="button" type="submit">Consultar por WhatsApp →</button>
+              {partRequestError && <p className="inline-error">{partRequestError}</p>}
+                <button className="button" type="submit" disabled={partRequestLoading}>
+                  {partRequestLoading ? "Registrando solicitud..." : <>Consultar por WhatsApp <b>→</b></>}
+                </button>
               <small className="form-note">El formulario no guarda tus datos; prepara el mensaje y abre el WhatsApp oficial de Jamiro.</small>
             </form>
           </article>
