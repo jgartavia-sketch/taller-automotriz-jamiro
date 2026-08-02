@@ -75,6 +75,8 @@ export default function Home() {
   const [referralCode, setReferralCode] = useState("");
   const [referralExpiry, setReferralExpiry] = useState("");
   const [copied, setCopied] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -301,7 +303,36 @@ export default function Home() {
                   <label>Nombre completo<input name="name" required placeholder="Ej. Carlos Sánchez" /></label>
                   <label>Correo electrónico<input name="email" type="email" required placeholder="correo@ejemplo.com" /></label>
                   <label>WhatsApp<input name="phone" type="tel" required placeholder="+506 8888-8888" /></label>
-                  <label>Contraseña<input name="password" type="password" required minLength={8} placeholder="Mínimo 8 caracteres" /></label>
+                  <label>
+                    Contraseña
+                    <div className="password-field">
+                      <input
+                        name="password"
+                        type={showRegisterPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        placeholder="Mínimo 8 caracteres"
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle"
+                        onClick={() => setShowRegisterPassword((visible) => !visible)}
+                        aria-label={showRegisterPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        aria-pressed={showRegisterPassword}
+                      >
+                        {showRegisterPassword ? (
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 3l18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 4.2A10.8 10.8 0 0112 4c5.5 0 9 5.1 9 5.1a15 15 0 01-3.1 3.6M6.2 6.2C4.2 7.5 3 9.1 3 9.1S6.5 15 12 15c1 0 2-.2 2.9-.5" />
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" />
+                            <circle cx="12" cy="12" r="2.5" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                  </label>
                   <label>Código de referido <small>Opcional</small><input name="referral" placeholder="Ej. JAMIRO-A7K29Q" /></label>
                   <label className="terms-check"><input type="checkbox" required /><span>Acepto los términos del programa de fidelización.</span></label>
                   {authError && <p className="inline-error">{authError}</p>}
@@ -315,8 +346,8 @@ export default function Home() {
                 <h3>¡Bienvenido al Club Jamiro!</h3>
                 <p>Tu tarjeta digital ya está vinculada de forma segura a tu correo y WhatsApp.</p>
                 <button className="button" type="button" onClick={logoutCustomer}>
-  Cerrar sesión
-</button>
+                  Cerrar sesión
+                </button>
               </div>
             )}
           </div>
@@ -379,7 +410,36 @@ export default function Home() {
           <div className="panel-title"><span>→</span><div><small>Cliente registrado</small><h3>Ingresar</h3></div></div>
           <form className="registration-form single-column" onSubmit={loginCustomer}>
             <label>Correo electrónico<input name="email" type="email" required placeholder="correo@ejemplo.com" /></label>
-            <label>Contraseña<input name="password" type="password" required minLength={6} placeholder="••••••••" /></label>
+            <label>
+              Contraseña
+              <div className="password-field">
+                <input
+                  name="password"
+                  type={showLoginPassword ? "text" : "password"}
+                  required
+                  minLength={6}
+                  placeholder="••••••••"
+                />
+                <button
+                              type="button"
+                              className="password-toggle"
+                              onClick={() => setShowLoginPassword((visible) => !visible)}
+                              aria-label={showLoginPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                              aria-pressed={showLoginPassword}
+                            >
+                              {showLoginPassword ? (
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                  <path d="M3 3l18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 4.2A10.8 10.8 0 0112 4c5.5 0 9 5.1 9 5.1a15 15 0 01-3.1 3.6M6.2 6.2C4.2 7.5 3 9.1 3 9.1S6.5 15 12 15c1 0 2-.2 2.9-.5" />
+                                </svg>
+                              ) : (
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                  <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" />
+                                  <circle cx="12" cy="12" r="2.5" />
+                                </svg>
+                              )}
+                            </button>
+              </div>
+            </label>
             {authError && <p className="inline-error">{authError}</p>}
             <button className="button" type="submit" disabled={authLoading}>{authLoading ? "Ingresando..." : "Ingresar a mi cuenta →"}</button>
           </form>

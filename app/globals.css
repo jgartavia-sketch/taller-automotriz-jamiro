@@ -380,3 +380,57 @@ nav a.active { color: #fff; }
 .directory-grid b { font-size: .84rem; }
 @media (max-width: 1050px) { .directory-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 720px) { .page-section { padding-top: 118px; } .directory-grid { grid-template-columns: 1fr; } .directory-grid > a { min-height: 220px; } }
+
+/* Mostrar u ocultar contraseña */
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 52px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #b9bec3;
+  cursor: pointer;
+  transition: color .2s, background .2s;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  color: #fff;
+  background: rgba(255,255,255,.08);
+  outline: none;
+}
+
+.password-toggle svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 720px) {
+  .password-toggle {
+    width: 42px;
+    height: 42px;
+    right: 7px;
+  }
+}
