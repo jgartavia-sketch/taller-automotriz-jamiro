@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
 const TOKEN_KEY = "jamiro_token";
@@ -52,6 +52,7 @@ const rewards = [
 
 export default function Home() {
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/";
   const isRegistration = pathname === "/registro";
   const isServices = pathname === "/servicios";
@@ -226,11 +227,8 @@ export default function Home() {
       if (!response.ok) throw new Error(result.error || "No pudimos crear la cuenta.");
       localStorage.setItem(TOKEN_KEY, result.token);
       setProfile(result.customer);
-      setAuthMessage(
-        result.notifications?.welcomeEmailSent
-          ? "Tu cuenta está activa. Te enviamos el correo de confirmación."
-          : "Tu cuenta está activa, pero el correo de confirmación no pudo enviarse. El equipo ya puede revisar el registro.",
-      );
+      setAuthMessage("Tu cuenta está activa. El correo de bienvenida está en proceso.");
+      router.replace("/mi-cuenta");
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : "No pudimos crear la cuenta.");
     } finally {

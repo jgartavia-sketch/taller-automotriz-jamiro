@@ -364,7 +364,14 @@ footer { padding: 38px clamp(24px, 7vw, 110px); display: flex; align-items: cent
   .brand strong { font-size: 7px; }
   nav { top: 70px; }
   .header-actions .button { display: none; }
-  .account-link { display: none; }
+  .account-link {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding-inline: 6px;
+    font-size: 9px;
+    white-space: nowrap;
+  }
   .cart-button { font-size: 0; }
   .cart-button span { font-size: 11px; }
   .hero {
