@@ -51,6 +51,7 @@ export default function StaffPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [amount, setAmount] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const pointsPreview = useMemo(() => {
     const parsed = Number(amount);
@@ -200,7 +201,51 @@ export default function StaffPage() {
           <p className={styles.intro}>Ingresá con la cuenta individual asignada por el taller.</p>
           <form onSubmit={login} className={styles.form}>
             <label>Correo del empleado<input name="email" type="email" autoComplete="username" required /></label>
-            <label>Contraseña<input name="password" type="password" autoComplete="current-password" required /></label>
+            <label>
+              Contraseña
+              <span style={{ position: "relative", display: "block" }}>
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  style={{ paddingRight: "3.5rem" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-pressed={showPassword}
+                  title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    right: "0.85rem",
+                    width: "2.25rem",
+                    height: "2.25rem",
+                    padding: 0,
+                    border: 0,
+                    background: "transparent",
+                    color: "currentColor",
+                    display: "grid",
+                    placeItems: "center",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                  }}
+                >
+                  {showPassword ? (
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M3 3l18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 4.2A10.7 10.7 0 0112 4c5.5 0 9.5 5.2 9.5 8a8.8 8.8 0 01-2.1 3.8M6.2 6.2C3.8 7.8 2.5 10.2 2.5 12c0 2.8 4 8 9.5 8 1.4 0 2.7-.3 3.8-.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : (
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M2.5 12c0-2.8 4-8 9.5-8s9.5 5.2 9.5 8-4 8-9.5 8-9.5-5.2-9.5-8z" stroke="currentColor" strokeWidth="1.8" />
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+                    </svg>
+                  )}
+                </button>
+              </span>
+            </label>
             {error && <p className={styles.error} role="alert">{error}</p>}
             <button disabled={loginLoading}>{loginLoading ? "Ingresando…" : "Ingresar"}</button>
           </form>

@@ -82,24 +82,42 @@ export default function Home() {
 
   useEffect(() => {
     const loadSession = async () => {
+      const token = localStorage.getItem(TOKEN_KEY);
+
+      if (!token) {
+        setSessionLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch(`${API_URL}/api/auth/me`, {
           cache: "no-store",
-          headers: authHeaders(),
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+
         if (response.ok) {
           const data = await response.json();
           setProfile(data.customer);
           setMovements(data.movements || []);
+
           if (data.referral) {
             setReferralCode(data.referral.code);
             setReferralExpiry(data.referral.expiry);
           }
+        } else if (response.status === 401) {
+          localStorage.removeItem(TOKEN_KEY);
+          setProfile(null);
+          setMovements([]);
         }
+      } catch {
+        setAuthError("No pudimos conectar con el servidor. Intentá nuevamente.");
       } finally {
         setSessionLoading(false);
       }
     };
+
     loadSession();
   }, []);
 
