@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import ServiceTracker from "./ServiceTracker";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
 const TOKEN_KEY = "jamiro_token";
@@ -587,6 +588,8 @@ export default function Home() {
                 <article><small>Última visita</small><strong>18 JUL</strong><p>Cambio de aceite premium.</p></article>
               </div>
             </div>
+
+            <ServiceTracker apiUrl={API_URL} tokenKey={TOKEN_KEY} />
 
             <div className="account-section">
               <div className="subheading"><div><p className="eyebrow"><span /> Beneficios</p><h3>Recompensas disponibles</h3></div><p>Los puntos se descuentan únicamente cuando el beneficio es confirmado por el taller.</p></div>

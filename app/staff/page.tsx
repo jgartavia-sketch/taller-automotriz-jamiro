@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import styles from "./staff.module.css";
+import WorkshopModule from "./WorkshopModule";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
 const STAFF_TOKEN_KEY = "jamiro_staff_token";
@@ -53,6 +54,7 @@ export default function StaffPage() {
   const [message, setMessage] = useState("");
   const [amount, setAmount] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [activeModule, setActiveModule] = useState<"points" | "workshop">("points");
 
   const pointsPreview = useMemo(() => {
     const parsed = Number(amount);
@@ -278,7 +280,12 @@ export default function StaffPage() {
         </div>
       </header>
 
-      <section className={styles.content}>
+      <nav className={styles.moduleNav} aria-label="Módulos del portal">
+        <button className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
+        <button className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button>
+      </nav>
+
+      {activeModule === "points" ? <section className={styles.content}>
         <div className={styles.heading}>
           <p className={styles.kicker}>Club Jamiro</p>
           <h1>Acreditar puntos</h1>
@@ -381,7 +388,7 @@ export default function StaffPage() {
             </section>
           </div>
         )}
-      </section>
+      </section> : <WorkshopModule />}
     </main>
   );
 }

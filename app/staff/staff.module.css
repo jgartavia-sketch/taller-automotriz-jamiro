@@ -195,6 +195,33 @@
   padding: clamp(48px, 8vw, 90px) 0;
 }
 
+.moduleNav {
+  width: min(1180px, calc(100% - 40px));
+  display: flex;
+  gap: 8px;
+  margin: 28px auto 0;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #24282c;
+}
+
+.moduleNav button {
+  padding: 13px 16px;
+  border: 1px solid #34393e;
+  background: #0f1215;
+  color: #9ba2a9;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.moduleNav .moduleActive {
+  border-color: #ef3038;
+  background: #d91f27;
+  color: #fff;
+}
+
 .heading {
   max-width: 760px;
   margin-bottom: 38px;
@@ -461,6 +488,14 @@
 
   .header {
     padding-inline: 12px;
+  }
+
+  .moduleNav {
+    width: calc(100% - 24px);
+  }
+
+  .moduleNav button {
+    flex: 1;
   }
 
   .brand img {
