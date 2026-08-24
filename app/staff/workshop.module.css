@@ -2,3 +2,6 @@
 
 @media(max-width:780px){.module{width:calc(100% - 24px);padding:24px 0 56px}.receiveGrid,.two{grid-template-columns:1fr}.toolbar{display:grid;grid-template-columns:1fr;margin-bottom:20px}.toolbar button{width:100%;min-height:46px}.row{flex-direction:column}.row button{width:100%}.heading{align-items:flex-start;flex-direction:column;gap:10px}.heading h1{font-size:clamp(27px,10vw,44px)}.panel{padding:18px}.photoGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.photoGrid img{height:140px}.cameraActions{grid-template-columns:1fr}.cameraActions button,.cameraActions label{width:100%}.captureGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.timeline article{padding:16px}}
 @media(max-width:380px){.module{width:calc(100% - 16px)}.panel{padding:14px}.photoGrid img{height:120px}}
+.cameraActions{grid-template-columns:repeat(2,minmax(0,1fr))}
+.phoneCameraButton{background:#d91f27!important;border-color:#d91f27!important}
+@media(max-width:780px){.cameraActions{grid-template-columns:1fr}}

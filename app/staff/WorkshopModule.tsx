@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import styles from "./workshop.module.css";
 
@@ -39,63 +39,13 @@ async function compressFiles(files: File[]) {
 }
 
 function CameraCapture({ files, onChange, required = false }: { files: File[]; onChange: (files: File[]) => void; required?: boolean }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [cameraError, setCameraError] = useState("");
   const [previews, setPreviews] = useState<string[]>([]);
-
-  const stopCamera = () => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    if (videoRef.current) videoRef.current.srcObject = null;
-    setCameraOpen(false);
-  };
 
   useEffect(() => {
     const urls = files.map((file) => URL.createObjectURL(file));
     setPreviews(urls);
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
   }, [files]);
-
-  useEffect(() => () => streamRef.current?.getTracks().forEach((track) => track.stop()), []);
-
-  const openCamera = async () => {
-    setCameraError("");
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraError("Este navegador no permite abrir la cámara aquí. Usá Cámara del teléfono.");
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false,
-      });
-      streamRef.current = stream;
-      setCameraOpen(true);
-      window.setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => undefined);
-        }
-      }, 0);
-    } catch {
-      setCameraError("No se pudo abrir la cámara. Revisá el permiso del navegador o usá Cámara del teléfono.");
-    }
-  };
-
-  const takePhoto = () => {
-    const video = videoRef.current;
-    if (!video || !video.videoWidth || files.length >= MAX_PHOTOS) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d")?.drawImage(video, 0, 0);
-    canvas.toBlob((blob) => {
-      if (!blob) return setCameraError("No se pudo capturar la foto. Intentá nuevamente.");
-      onChange([...files, new File([blob], `jamiro-${Date.now()}.jpg`, { type: "image/jpeg" })]);
-    }, "image/jpeg", .88);
-  };
 
   const addFiles = (event: ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(event.target.files || []).filter((file) => file.type.startsWith("image/"));
@@ -105,12 +55,9 @@ function CameraCapture({ files, onChange, required = false }: { files: File[]; o
 
   return <div className={styles.cameraField}>
     <div className={styles.cameraActions}>
-      <button type="button" className={styles.cameraButton} onClick={cameraOpen ? stopCamera : openCamera}>{cameraOpen ? "Cerrar cámara" : "Abrir cámara"}</button>
-      <label className={styles.phoneCameraButton}>Cámara del teléfono<input type="file" accept="image/*" capture="environment" onChange={addFiles}/></label>
+      <label className={styles.phoneCameraButton}>Tomar foto<input type="file" accept="image/*" capture="environment" onChange={addFiles}/></label>
       <label className={styles.galleryButton}>Elegir de galería<input type="file" accept="image/*" multiple onChange={addFiles}/></label>
     </div>
-    {cameraOpen && <div className={styles.cameraStage}><video ref={videoRef} autoPlay playsInline muted/><button type="button" onClick={takePhoto} disabled={files.length >= MAX_PHOTOS}>Tomar foto</button></div>}
-    {cameraError && <p className={styles.cameraError}>{cameraError}</p>}
     <p className={styles.photoCount}>{files.length} de {MAX_PHOTOS} fotos{required && files.length === 0 ? " · Necesitás al menos una" : ""}</p>
     {previews.length > 0 && <div className={styles.captureGrid}>{previews.map((preview, index) => <figure key={`${preview}-${index}`}><img src={preview} alt={`Foto capturada ${index + 1}`}/><button type="button" onClick={() => onChange(files.filter((_, fileIndex) => fileIndex !== index))} aria-label={`Eliminar foto ${index + 1}`}>×</button></figure>)}</div>}
   </div>;
