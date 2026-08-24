@@ -280,10 +280,10 @@ export default function StaffPage() {
         </div>
       </header>
 
-      <nav className={styles.moduleNav} aria-label="Módulos del portal">
-        <button className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
-        <button className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button>
-      </nav>
+      <div className={styles.moduleNav} role="tablist" aria-label="Módulos del portal">
+        <button type="button" role="tab" aria-selected={activeModule === "points"} className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
+        <button type="button" role="tab" aria-selected={activeModule === "workshop"} className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button>
+      </div>
 
       {activeModule === "points" ? <section className={styles.content}>
         <div className={styles.heading}>
