@@ -1,6 +1,8 @@
 .shell,
 .dashboard {
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at 85% 10%, rgba(218, 31, 38, .16), transparent 28%),
     #080a0c;
@@ -458,7 +460,8 @@
 
 @media (max-width: 780px) {
   .header {
-    align-items: flex-start;
+    min-height: auto;
+    align-items: center;
   }
 
   .brand span,
@@ -479,6 +482,21 @@
   .searchForm {
     grid-template-columns: 1fr;
   }
+
+  .content {
+    padding: 34px 0 56px;
+  }
+
+  .moduleNav {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding-bottom: 12px;
+  }
+
+  .moduleNav button {
+    width: 100%;
+    min-height: 46px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -488,6 +506,7 @@
 
   .header {
     padding-inline: 12px;
+    gap: 8px;
   }
 
   .moduleNav {
@@ -496,6 +515,44 @@
 
   .moduleNav button {
     flex: 1;
+  }
+
+  .session {
+    margin-left: auto;
+    min-width: 0;
+  }
+
+  .session button {
+    padding: 9px 10px;
+    white-space: nowrap;
+  }
+
+  .loginCard {
+    padding: 24px 18px;
+  }
+
+  .loginCard h1 {
+    font-size: clamp(36px, 13vw, 52px);
+  }
+
+  .panel,
+  .customerCard,
+  .resultsPanel {
+    padding: 18px;
+  }
+
+  .step {
+    align-items: flex-start;
+  }
+
+  .step h2,
+  .customerCard h2,
+  .resultsPanel h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .resultsList {
+    grid-template-columns: 1fr;
   }
 
   .brand img {
