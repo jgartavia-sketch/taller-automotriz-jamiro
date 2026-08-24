@@ -44,6 +44,7 @@ function colones(value: number) {
 export default function StaffPage() {
   const [staff, setStaff] = useState<Staff | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
+  const [searchResults, setSearchResults] = useState<Customer[]>([]);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -86,10 +87,11 @@ export default function StaffPage() {
 
   const login = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
     setLoginLoading(true);
     setError("");
     setMessage("");
-    const data = new FormData(event.currentTarget);
+    const data = new FormData(form);
 
     try {
       const response = await fetch(`${API_URL}/api/staff/login`, {
@@ -105,7 +107,7 @@ export default function StaffPage() {
 
       localStorage.setItem(STAFF_TOKEN_KEY, result.token);
       setStaff(result.staff);
-      event.currentTarget.reset();
+      form.reset();
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : "No se pudo iniciar sesión.");
     } finally {
@@ -119,17 +121,24 @@ export default function StaffPage() {
     setError("");
     setMessage("");
     setCustomer(null);
+    setSearchResults([]);
     const data = new FormData(event.currentTarget);
-    const email = String(data.get("email") || "").trim().toLowerCase();
+    const query = String(data.get("query") || "").trim();
 
     try {
       const response = await fetch(
-        `${API_URL}/api/staff/customers/search?email=${encodeURIComponent(email)}`,
+        `${API_URL}/api/staff/customers/search?q=${encodeURIComponent(query)}`,
         { cache: "no-store", headers: staffHeaders() },
       );
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "No se encontró el cliente.");
-      setCustomer(result.customer);
+
+      const customers: Customer[] = result.customers || [];
+      if (customers.length === 1) {
+        setCustomer(customers[0]);
+      } else {
+        setSearchResults(customers);
+      }
     } catch (searchError) {
       setError(searchError instanceof Error ? searchError.message : "No se encontró el cliente.");
     } finally {
@@ -180,6 +189,7 @@ export default function StaffPage() {
     localStorage.removeItem(STAFF_TOKEN_KEY);
     setStaff(null);
     setCustomer(null);
+    setSearchResults([]);
     setError("");
     setMessage("");
   };
@@ -272,16 +282,56 @@ export default function StaffPage() {
         <div className={styles.heading}>
           <p className={styles.kicker}>Club Jamiro</p>
           <h1>Acreditar puntos</h1>
-          <p>Buscá al cliente por correo, verificá sus datos y registrá el monto pagado.</p>
+          <p>Buscá al cliente por nombre, correo o teléfono, verificá sus datos y registrá el monto pagado.</p>
         </div>
 
         <section className={styles.panel}>
           <div className={styles.step}><span>01</span><div><small>Localizar cuenta</small><h2>Buscar cliente</h2></div></div>
           <form onSubmit={searchCustomer} className={styles.searchForm}>
-            <label>Correo exacto del cliente<input name="email" type="email" placeholder="cliente@correo.com" required /></label>
+            <label>
+              Nombre, correo o teléfono
+              <input
+                name="query"
+                type="search"
+                minLength={2}
+                maxLength={120}
+                placeholder="Ej. María, cliente@correo.com o 8888-8888"
+                required
+              />
+            </label>
             <button disabled={searchLoading}>{searchLoading ? "Buscando…" : "Buscar cliente"}</button>
           </form>
         </section>
+
+        {searchResults.length > 1 && (
+          <section className={styles.resultsPanel} aria-labelledby="search-results-title">
+            <div>
+              <p className={styles.kicker}>Coincidencias encontradas</p>
+              <h2 id="search-results-title">Elegí el cliente correcto</h2>
+              <p>Encontramos {searchResults.length} cuentas. Verificá el correo y el teléfono antes de continuar.</p>
+            </div>
+            <div className={styles.resultsList}>
+              {searchResults.map((result) => (
+                <button
+                  key={result.id}
+                  type="button"
+                  className={styles.resultButton}
+                  onClick={() => {
+                    setCustomer(result);
+                    setSearchResults([]);
+                    setError("");
+                    setMessage("");
+                  }}
+                >
+                  <strong>{result.name}</strong>
+                  <span>{result.email}</span>
+                  <span>{result.phone}</span>
+                  <small>{result.customerId}</small>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
         {error && <p className={styles.error} role="alert">{error}</p>}
         {message && <p className={styles.success} role="status">{message}</p>}
