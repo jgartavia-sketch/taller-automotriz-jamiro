@@ -449,7 +449,7 @@ export default function Home() {
                   <label>Código de referido <small>Opcional</small><input name="referral" placeholder="Ej. JAMIRO-A7K29Q" /></label>
                   <label className="terms-check"><input type="checkbox" required /><span>Acepto los términos del programa de fidelización.</span></label>
                   {authError && <p className="inline-error">{authError}</p>}
-                  <button className="button" type="submit" disabled={authLoading}>{authLoading ? "Creando cuenta..." : "Crear mi tarjeta →"}</button>
+                  <button className="button" type="submit" disabled={authLoading}>{authLoading ? "Creando cuenta..." : "Crear mi cuenta →"}</button>
                 </form>
               </>
             ) : (
