@@ -1,4 +1,4 @@
-"use client";
+
 
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
@@ -24,6 +24,8 @@ type Customer = {
   purchasePoints: number;
   referralPoints: number;
   totalPoints: number;
+  referralCount?: number;
+  createdAt?: string;
 };
 
 function adminHeaders(json = false): Record<string, string> {
@@ -50,16 +52,46 @@ export default function StaffPage() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [awardLoading, setAwardLoading] = useState(false);
+  const [customersLoading, setCustomersLoading] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customerFilter, setCustomerFilter] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [amount, setAmount] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [activeModule, setActiveModule] = useState<"points" | "workshop">("points");
+  const [activeModule, setActiveModule] = useState<"points" | "workshop" | "customers">("points");
 
   const pointsPreview = useMemo(() => {
     const parsed = Number(amount);
     return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed / 100) : 0;
   }, [amount]);
+
+  const filteredCustomers = useMemo(() => {
+    const query = customerFilter.trim().toLowerCase();
+    if (!query) return customers;
+    return customers.filter((item) =>
+      [item.name, item.email, item.phone, item.customerId]
+        .some((value) => value.toLowerCase().includes(query)),
+    );
+  }, [customerFilter, customers]);
+
+  const loadCustomers = async () => {
+    setCustomersLoading(true);
+    setError("");
+    try {
+      const response = await fetch(`${API_URL}/api/admin-portal/customers`, {
+        cache: "no-store",
+        headers: adminHeaders(),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "No se pudo cargar la lista de clientes.");
+      setCustomers(result.customers || []);
+    } catch (customersError) {
+      setError(customersError instanceof Error ? customersError.message : "No se pudo cargar la lista de clientes.");
+    } finally {
+      setCustomersLoading(false);
+    }
+  };
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -283,6 +315,15 @@ export default function StaffPage() {
       <nav className={styles.moduleNav} aria-label="Módulos del portal">
         <button className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
         <button className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button>
+        <button
+          className={activeModule === "customers" ? styles.moduleActive : ""}
+          onClick={() => {
+            setActiveModule("customers");
+            if (customers.length === 0) void loadCustomers();
+          }}
+        >
+          Clientes registrados
+        </button>
       </nav>
 
       {activeModule === "points" ? <section className={styles.content}>
@@ -388,7 +429,66 @@ export default function StaffPage() {
             </section>
           </div>
         )}
-      </section> : <AdminWorkshopModule />}
+      </section> : activeModule === "workshop" ? <AdminWorkshopModule /> : (
+        <section className={styles.content}>
+          <div className={styles.customersHeading}>
+            <div className={styles.heading}>
+              <p className={styles.kicker}>Club Jamiro</p>
+              <h1>Clientes registrados</h1>
+              <p>Consultá las cuentas creadas, sus datos de contacto y el saldo actual de puntos.</p>
+            </div>
+            <div className={styles.customerTotal}>
+              <small>Total registrado</small>
+              <strong>{customers.length}</strong>
+            </div>
+          </div>
+
+          <section className={styles.panel}>
+            <div className={styles.customerTools}>
+              <label>
+                Buscar en la lista
+                <input
+                  type="search"
+                  value={customerFilter}
+                  onChange={(event) => setCustomerFilter(event.target.value)}
+                  placeholder="Nombre, correo, teléfono o código"
+                />
+              </label>
+              <button type="button" onClick={loadCustomers} disabled={customersLoading}>
+                {customersLoading ? "Actualizando…" : "Actualizar lista"}
+              </button>
+            </div>
+          </section>
+
+          {error && <p className={styles.error} role="alert">{error}</p>}
+
+          {!customersLoading && !error && filteredCustomers.length === 0 && (
+            <p className={styles.emptyState}>
+              {customers.length === 0 ? "Todavía no hay clientes registrados." : "No hay clientes que coincidan con la búsqueda."}
+            </p>
+          )}
+
+          {filteredCustomers.length > 0 && (
+            <div className={styles.customersTableWrap}>
+              <table className={styles.customersTable}>
+                <thead><tr><th>Cliente</th><th>Contacto</th><th>Código</th><th>Puntos</th><th>Referidos</th><th>Registro</th></tr></thead>
+                <tbody>
+                  {filteredCustomers.map((item) => (
+                    <tr key={item.id}>
+                      <td data-label="Cliente"><strong>{item.name}</strong></td>
+                      <td data-label="Contacto"><a href={`mailto:${item.email}`}>{item.email}</a><span>{item.phone}</span></td>
+                      <td data-label="Código"><code>{item.customerId}</code></td>
+                      <td data-label="Puntos"><strong className={styles.pointsValue}>{item.totalPoints}</strong><small>{item.purchasePoints} compras · {item.referralPoints} referidos</small></td>
+                      <td data-label="Referidos">{item.referralCount || 0}</td>
+                      <td data-label="Registro">{item.createdAt ? new Intl.DateTimeFormat("es-CR", { dateStyle: "medium" }).format(new Date(item.createdAt)) : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
     </main>
   );
 }
