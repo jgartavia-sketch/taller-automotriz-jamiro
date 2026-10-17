@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import styles from "./workshop.module.css";
 
@@ -86,6 +86,17 @@ export default function WorkshopModule({ tokenKey = "jamiro_staff_token" }: { to
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const feedbackRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (error || message) {
+      feedbackRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+      feedbackRef.current?.focus({ preventScroll: true });
+    }
+  }, [error, message]);
+  const feedback = <div ref={feedbackRef} tabIndex={-1} className={styles.feedback}>
+    {error && <p className={styles.error} role="alert">{error}</p>}
+    {message && <p className={styles.success} role="status">{message}</p>}
+  </div>;
 
   const loadOrders = useCallback(async () => {
     const response = await fetch(`${API_URL}/api/workshop/staff/orders?page=${page}&state=${view === "history" ? "history" : "active"}`, { headers: headers(tokenKey), cache: "no-store" });
@@ -110,23 +121,39 @@ export default function WorkshopModule({ tokenKey = "jamiro_staff_token" }: { to
 
   const receive = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError(""); setMessage("");
+    const form = event.currentTarget;
+    if (!form.checkValidity()) {
+      const invalid = form.querySelector<HTMLInputElement>(":invalid");
+      setError(`Revisá el formulario: ${invalid?.closest("label")?.textContent?.trim() || "campos requeridos"}. ${invalid?.validationMessage || ""}`);
+      return;
+    }
     if (!customer) return setError("Primero elegí al cliente.");
     if (receptionPhotos.length === 0) return setError("Tomá o elegí al menos una foto de recepción.");
-    const form = event.currentTarget;
     const data = new FormData(form);
     setLoading(true); setError(""); setMessage("");
     try {
       const photos = await compressFiles(receptionPhotos);
       const response = await fetch(`${API_URL}/api/workshop/staff/orders`, {
-        method: "POST", headers: headers(tokenKey, true),
+        method: "POST", headers: headers(tokenKey, true), signal: AbortSignal.timeout(30000),
         body: JSON.stringify({ customerId: customer.id, plate: data.get("plate"), brand: data.get("brand"), model: data.get("model"), year: data.get("year"), color: data.get("color"), mileage: data.get("mileage"), fuelLevel: data.get("fuelLevel"), reason: data.get("reason"), visibleDamage: data.get("visibleDamage"), receivedItems: data.get("receivedItems"), estimatedDelivery: data.get("estimatedDelivery"), photos }),
       });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "No pudimos recibir el vehículo.");
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        const fields: Record<string, string> = { plate: "placa", brand: "marca", model: "modelo", year: "año", color: "color", mileage: "kilometraje", reason: "motivo de ingreso", photos: "fotos", estimatedDelivery: "entrega estimada" };
+        const details = Array.isArray(result?.details) ? result.details.map((issue: { path?: string[] }) => fields[issue.path?.[0] || ""] || "datos del vehículo") : [];
+        throw new Error(details.length ? `Revisá estos campos: ${[...new Set(details)].join(", ")}.` : result?.error || `No pudimos recibir el vehículo (HTTP ${response.status}).`);
+      }
+      if (!result?.order?.id || !result.order.orderCode) throw new Error("El servidor respondió sin una confirmación válida. Buscá la placa en Servicios activos antes de intentar registrar otra vez.");
       form.reset(); setReceptionPhotos([]); setCustomer(null); setCustomers([]);
-      setMessage(`Orden ${result.order.orderCode} creada correctamente.`);
-      await loadOrders(); setSelected(result.order); setView("active");
-    } catch (e) { setError(e instanceof Error ? e.message : "No pudimos recibir el vehículo."); }
+      setSelected(result.order); setView("active");
+      setMessage(`Vehículo ${result.order.vehicle.plate} registrado correctamente para ${result.order.customer.name}. Orden ${result.order.orderCode}.`);
+      // The POST is already confirmed. A list refresh must not turn it into a failure.
+      void loadOrders().catch(() => setMessage((text) => `${text} La orden está guardada, pero no se pudo actualizar la lista.`));
+    } catch (e) {
+      const uncertain = e instanceof TypeError || (e instanceof Error && ["TimeoutError", "AbortError"].includes(e.name));
+      setError(uncertain ? "No pudimos confirmar la respuesta del servidor. Buscá la placa en Servicios activos antes de volver a registrar, para evitar duplicados." : e instanceof Error ? e.message : "No pudimos recibir el vehículo.");
+    }
     finally { setLoading(false); }
   };
 
@@ -161,10 +188,10 @@ export default function WorkshopModule({ tokenKey = "jamiro_staff_token" }: { to
   const visibleOrders = orders.filter((order) => view === "history" ? ["DELIVERED", "CANCELLED"].includes(order.status) : !["DELIVERED", "CANCELLED"].includes(order.status));
   return <section className={styles.module}>
     <div className={styles.toolbar}><button type="button" onClick={() => { setView("active"); setPage(1); setSelected(null); }}>Servicios activos</button><button type="button" onClick={() => { setView("receive"); setSelected(null); }}>Recibir vehículo</button><button type="button" onClick={() => { setView("history"); setPage(1); setSelected(null); }}>Historial</button></div>
-    {error && <p className={styles.error}>{error}</p>}{message && <p className={styles.success}>{message}</p>}
+    {view !== "receive" && feedback}
     {view === "receive" ? <div className={styles.receiveGrid}>
       <section className={styles.panel}><h2>1. Elegir cliente</h2><form onSubmit={search} className={styles.row}><input name="query" minLength={2} placeholder="Nombre, correo o teléfono" required/><button>Buscar</button></form><div className={styles.customerList}>{customers.map((item) => <button type="button" key={item.id} className={customer?.id === item.id ? styles.selected : ""} onClick={() => setCustomer(item)}><strong>{item.name}</strong><span>{item.email} · {item.phone}</span></button>)}</div></section>
-      <section className={styles.panel}><h2>2. Datos de recepción</h2>{customer && <p>Cliente: <strong>{customer.name}</strong></p>}<form onSubmit={receive} className={styles.form}><div className={styles.two}><label>Placa<input name="plate" required/></label><label>Marca<input name="brand" required/></label><label>Modelo<input name="model" required/></label><label>Año<input name="year" inputMode="numeric" pattern="[0-9]{4}" required/></label><label>Color<input name="color" required/></label><label>Kilometraje<input name="mileage" type="number" inputMode="numeric" min="0" required/></label><label>Combustible<select name="fuelLevel" defaultValue="HALF"><option value="EMPTY">Vacío</option><option value="QUARTER">1/4</option><option value="HALF">1/2</option><option value="THREE_QUARTERS">3/4</option><option value="FULL">Lleno</option></select></label><label>Entrega estimada<input name="estimatedDelivery" type="date"/></label></div><label>Motivo de ingreso<textarea name="reason" required/></label><label>Daños visibles<textarea name="visibleDamage"/></label><label>Objetos recibidos<textarea name="receivedItems"/></label><div className={styles.photoLabel}><strong>Fotos de recepción</strong><small>Máximo 8</small></div><CameraCapture files={receptionPhotos} onChange={setReceptionPhotos} required/><button disabled={loading || !customer}>{loading ? "Guardando…" : "Recibir vehículo"}</button></form></section>
+      <section className={styles.panel}><h2>2. Datos de recepción</h2>{customer && <p>Cliente: <strong>{customer.name}</strong></p>}<form onSubmit={receive} className={styles.form} noValidate><div className={styles.two}><label>Placa<input name="plate" minLength={2} maxLength={20} required/></label><label>Marca<input name="brand" minLength={2} maxLength={60} required/></label><label>Modelo<input name="model" maxLength={60} required/></label><label>Año<input name="year" inputMode="numeric" pattern="[0-9]{4}" required/></label><label>Color<input name="color" minLength={2} maxLength={40} required/></label><label>Kilometraje<input name="mileage" type="number" inputMode="numeric" min="0" required/></label><label>Combustible<select name="fuelLevel" defaultValue="HALF"><option value="EMPTY">Vacío</option><option value="QUARTER">1/4</option><option value="HALF">1/2</option><option value="THREE_QUARTERS">3/4</option><option value="FULL">Lleno</option></select></label><label>Entrega estimada<input name="estimatedDelivery" type="date"/></label></div><label>Motivo de ingreso<textarea name="reason" minLength={3} maxLength={1000} required/></label><label>Daños visibles<textarea name="visibleDamage"/></label><label>Objetos recibidos<textarea name="receivedItems"/></label><div className={styles.photoLabel}><strong>Fotos de recepción</strong><small>Máximo 8</small></div><CameraCapture files={receptionPhotos} onChange={setReceptionPhotos} required/>{feedback}{loading && <p role="status">Preparando fotos y guardando el vehículo… Esperá la confirmación.</p>}<button disabled={loading}>{loading ? "Guardando…" : "Recibir vehículo"}</button></form></section>
     </div> : selected ? <OrderDetail order={selected} onBack={() => setSelected(null)} onUpdate={update} loading={loading}/> : <div><div className={styles.heading}><h1>{view === "history" ? "Historial de servicios" : "Servicios activos"}</h1><span>{visibleOrders.length} órdenes</span></div><div className={styles.orderGrid}>{visibleOrders.map((order) => <button key={order.id} disabled={loading} onClick={() => void openOrder(order.id)} className={styles.orderCard}><small>{order.orderCode}</small><strong>{order.vehicle.plate} · {order.vehicle.brand} {order.vehicle.model}</strong><span>{order.customer.name}</span><b>{statusLabels[order.status]}</b></button>)}</div>{visibleOrders.length === 0 && <p>No hay servicios en esta sección.</p>}<div className={styles.toolbar}><button disabled={page === 1 || loading} onClick={() => setPage(page - 1)}>Anterior</button><span>Página {page}</span><button disabled={!hasMore || loading} onClick={() => setPage(page + 1)}>Siguiente</button></div></div>}
   </section>;
 }

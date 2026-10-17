@@ -12,3 +12,7 @@
 .back, .captureGrid button { min-height: 44px; }
 .captureGrid button { width: 44px; height: 44px; }
 .cameraActions label:focus-within { outline: 2px solid #fff; outline-offset: 3px; }
+
+.feedback { min-width: 0; scroll-margin-block: 24px; }
+.feedback:empty { display: none; }
+.feedback:focus { outline: 2px solid #cfd4d8; outline-offset: 4px; }
