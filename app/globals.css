@@ -517,3 +517,23 @@ input, select, textarea { min-width: 0; max-width: 100%; scroll-margin-top: 110p
   .site-header { height: calc(70px + env(safe-area-inset-top, 0px)); padding-left: max(15px, env(safe-area-inset-left, 0px)); padding-right: max(15px, env(safe-area-inset-right, 0px)); }
   #main-navigation { top: calc(70px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 70px - env(safe-area-inset-top, 0px)); max-height: calc(100dvh - 70px - env(safe-area-inset-top, 0px)); }
 }
+
+/* Intrinsic sizing: long names/codes must wrap rather than widen a phone. */
+.section > *, .account-grid > *, .account-columns > *, .account-summary > *,
+.loyalty-layout > *, .registration-form > *, .auth-page > *,
+.service-request-panel > *, .used-parts-panel > *, .contact-hub > *,
+.form-row > *, .referral-generator > *, .history-list > div > * { min-width: 0; }
+.account-page, .loyalty-card, .account-panel, .customer-data, .history-list,
+.referral-generator, .registration-panel, .auth-panel { overflow-wrap: anywhere; }
+.button { white-space: normal; text-align: center; }
+.drawer { height: 100%; max-height: 100dvh; padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 720px) {
+  .referral-generator { flex-wrap: wrap; }
+  .referral-actions { justify-content: flex-start; }
+  .site-header .brand { min-width: 0; flex-shrink: 1; }
+  .site-header .brand span { font-size: 18px; }
+  .site-header .brand strong { font-size: 7px; }
+  .header-actions { flex-shrink: 0; margin-right: 4px; margin-left: 6px; }
+  #main-navigation .mobile-quote { display: inline-flex; }
+}
+@media (min-width: 721px) { #main-navigation .mobile-quote { display: none; } }

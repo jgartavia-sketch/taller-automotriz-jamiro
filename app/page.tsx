@@ -367,6 +367,8 @@ export default function Home() {
           <Link className={isServices ? "active" : ""} href="/servicios" onClick={() => setMenuOpen(false)}>Servicios</Link>
           <Link className={isShop ? "active" : ""} href="/tienda" onClick={() => setMenuOpen(false)}>Tienda</Link>
           <Link className={isAbout ? "active" : ""} href="/nosotros" onClick={() => setMenuOpen(false)}>Nosotros</Link>
+          <Link href="/contacto" onClick={() => setMenuOpen(false)}>Contacto</Link>
+          <Link className="mobile-quote" href="/servicios#solicitar-servicio" onClick={() => setMenuOpen(false)}>Cotizar ahora</Link>
         </nav>
 
         <div className="header-actions">

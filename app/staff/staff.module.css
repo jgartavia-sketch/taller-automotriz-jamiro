@@ -573,3 +573,23 @@
     flex-direction: column;
   }
 }
+/* Keep the same portal actions reachable at every viewport and text size. */
+.moduleNav { flex-wrap: wrap; min-width: 0; }
+.moduleNav button { min-width: 0; white-space: normal; overflow-wrap: anywhere; min-height: 44px; }
+.header { flex-wrap: wrap; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+.content, .grid > *, .panel, .customerCard, .resultsPanel, .form label, .searchForm > *, .resultButton { min-width: 0; }
+.panel, .customerCard, .resultsPanel, .session { overflow-wrap: anywhere; }
+.session button { min-height: 44px; flex-shrink: 0; }
+@media (max-width: 780px) {
+  .brand span { display: block; font-size: 12px; }
+  .session { flex-wrap: wrap; max-width: 100%; }
+  .session span { display: grid; max-width: 100%; font-size: 12px; text-align: left; }
+  .session small { display: block; }
+  .moduleNav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .resultsList { grid-template-columns: 1fr; }
+  .form button, .searchForm button { min-height: 46px; white-space: normal; }
+}
+@media (max-width: 380px) {
+  .moduleNav { grid-template-columns: 1fr; }
+  .session { width: 100%; justify-content: space-between; }
+}

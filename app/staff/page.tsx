@@ -291,11 +291,11 @@ export default function StaffPage() {
 
       <div className={styles.moduleNav} role="tablist" aria-label="Módulos del portal">
         <button type="button" role="tab" aria-selected={activeModule === "registration"} className={activeModule === "registration" ? styles.moduleActive : ""} onClick={() => setActiveModule("registration")}>Registrar clientes</button>
-        {staff.role !== "RECEPTION" && <><button type="button" role="tab" aria-selected={activeModule === "points"} className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
-        <button type="button" role="tab" aria-selected={activeModule === "workshop"} className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button></>}
+        <button type="button" role="tab" aria-selected={activeModule === "points"} className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
+        <button type="button" role="tab" aria-selected={activeModule === "workshop"} className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button>
       </div>
 
-      {activeModule === "registration" || staff.role === "RECEPTION" ? <CustomerRegistration tokenKey={STAFF_TOKEN_KEY} /> : activeModule === "points" ? <section className={styles.content}>
+      {activeModule === "registration" ? <CustomerRegistration tokenKey={STAFF_TOKEN_KEY} /> : activeModule === "points" ? <section className={styles.content}>
         <div className={styles.heading}>
           <p className={styles.kicker}>Club Jamiro</p>
           <h1>Acreditar puntos</h1>

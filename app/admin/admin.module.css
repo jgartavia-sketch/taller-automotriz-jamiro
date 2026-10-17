@@ -631,6 +631,30 @@
     flex-direction: column;
   }
 
+
+}
+/* Keep the same portal actions reachable at every viewport and text size. */
+.moduleNav { flex-wrap: wrap; min-width: 0; }
+.moduleNav button { min-width: 0; white-space: normal; overflow-wrap: anywhere; min-height: 44px; }
+.header { flex-wrap: wrap; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+.content, .grid > *, .panel, .customerCard, .resultsPanel, .form label, .searchForm > *, .resultButton { min-width: 0; }
+.panel, .customerCard, .resultsPanel, .session { overflow-wrap: anywhere; }
+.session button { min-height: 44px; flex-shrink: 0; }
+@media (max-width: 780px) {
+  .brand span { display: block; font-size: 12px; }
+  .session { flex-wrap: wrap; max-width: 100%; }
+  .session span { display: grid; max-width: 100%; font-size: 12px; text-align: left; }
+  .session small { display: block; }
+  .moduleNav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .resultsList { grid-template-columns: 1fr; }
+  .form button, .searchForm button { min-height: 46px; white-space: normal; }
+}
+@media (max-width: 380px) {
+  .moduleNav { grid-template-columns: 1fr; }
+  .session { width: 100%; justify-content: space-between; }
+}
+
+@media (max-width: 1050px) {
   .customersTableWrap { overflow: visible; border: 0; background: transparent; }
   .customersTable { min-width: 0; }
   .customersTable thead { display: none; }
@@ -639,7 +663,10 @@
   .customersTable tr,
   .customersTable td { display: block; width: 100%; box-sizing: border-box; }
   .customersTable tr { margin-bottom: 12px; border: 1px solid #2c3034; background: #0f1215; }
-  .customersTable td { display: grid; grid-template-columns: 86px 1fr; gap: 12px; border-top: 1px solid #292d31; }
+  .customersTable td { display: grid; grid-template-columns: minmax(72px, .35fr) minmax(0, 1fr); gap: 12px; border-top: 1px solid #292d31; }
   .customersTable td:first-child { border-top: 0; }
   .customersTable td::before { content: attr(data-label); color: #747c83; font-size: 8px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+  .customersTable td { overflow-wrap: anywhere; }
 }
+
+.customersTable td, .customersTable th { overflow-wrap: anywhere; }
