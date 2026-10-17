@@ -1,0 +1,5 @@
+Compilación limpia de producción (Next.js 16.4.1): npm run build. Resultado: exit 0.
+Compiled successfully in 2.6s. TypeScript finalizó sin errores.
+Se generaron 12 páginas estáticas; rutas públicas, staff y admin incluidas.
+Advertencia del entorno de QA: un package-lock.json en la carpeta padre fue ignorado
+por quedar fuera del repositorio frontend. No impide la compilación del proyecto.

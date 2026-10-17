@@ -1,9 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 
+export const viewport: Viewport = {
+  width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#050607",
+};
+
 export const metadata: Metadata = {
-  title: "Taller Automotriz Jamiro | San Carlos",
+  title: "Taller Multiservicios Jamiro | San Carlos",
   description:
     "Electromecánica, mecánica general y mantenimiento automotriz con 16 años de experiencia en San Carlos.",
   icons: {

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import styles from "./staff.module.css";
+import CustomerRegistration from "../CustomerRegistration";
 import WorkshopModule from "./WorkshopModule";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
@@ -13,6 +14,7 @@ type Staff = {
   id: string;
   name: string;
   email: string;
+  role: "MECHANIC" | "RECEPTION";
 };
 
 type Customer = {
@@ -54,7 +56,7 @@ export default function StaffPage() {
   const [message, setMessage] = useState("");
   const [amount, setAmount] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [activeModule, setActiveModule] = useState<"points" | "workshop">("points");
+  const [activeModule, setActiveModule] = useState<"points" | "workshop" | "registration">("registration");
 
   const pointsPreview = useMemo(() => {
     const parsed = Number(amount);
@@ -187,7 +189,14 @@ export default function StaffPage() {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/staff/logout`, { method: "POST", headers: staffHeaders() });
+      if (!response.ok && response.status !== 401) throw new Error("No se pudo cerrar la sesión.");
+    } catch {
+      setError("No se pudo cerrar la sesión. Revisá tu conexión e intentá de nuevo.");
+      return;
+    }
     localStorage.removeItem(STAFF_TOKEN_KEY);
     setStaff(null);
     setCustomer(null);
@@ -205,7 +214,7 @@ export default function StaffPage() {
       <main className={styles.shell}>
         <section className={styles.loginCard}>
           <Link href="/" className={styles.brand}>
-            <img src="/logo-jamiro.png" alt="Taller Automotriz Jamiro" />
+            <img src="/logo-jamiro.png" alt="Taller Multiservicios Jamiro" />
             <span>Portal del personal</span>
           </Link>
           <p className={styles.kicker}>Acceso privado</p>
@@ -271,7 +280,7 @@ export default function StaffPage() {
     <main className={styles.dashboard}>
       <header className={styles.header}>
         <Link href="/" className={styles.brand}>
-          <img src="/logo-jamiro.png" alt="Taller Automotriz Jamiro" />
+          <img src="/logo-jamiro.png" alt="Taller Multiservicios Jamiro" />
           <span>Portal del personal</span>
         </Link>
         <div className={styles.session}>
@@ -281,11 +290,12 @@ export default function StaffPage() {
       </header>
 
       <div className={styles.moduleNav} role="tablist" aria-label="Módulos del portal">
-        <button type="button" role="tab" aria-selected={activeModule === "points"} className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
-        <button type="button" role="tab" aria-selected={activeModule === "workshop"} className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button>
+        <button type="button" role="tab" aria-selected={activeModule === "registration"} className={activeModule === "registration" ? styles.moduleActive : ""} onClick={() => setActiveModule("registration")}>Registrar clientes</button>
+        {staff.role !== "RECEPTION" && <><button type="button" role="tab" aria-selected={activeModule === "points"} className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
+        <button type="button" role="tab" aria-selected={activeModule === "workshop"} className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button></>}
       </div>
 
-      {activeModule === "points" ? <section className={styles.content}>
+      {activeModule === "registration" || staff.role === "RECEPTION" ? <CustomerRegistration tokenKey={STAFF_TOKEN_KEY} /> : activeModule === "points" ? <section className={styles.content}>
         <div className={styles.heading}>
           <p className={styles.kicker}>Club Jamiro</p>
           <h1>Acreditar puntos</h1>

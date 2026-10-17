@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import styles from "./admin.module.css";
+import CustomerRegistration from "../CustomerRegistration";
 import AdminWorkshopModule from "./AdminWorkshopModule";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
@@ -60,7 +61,7 @@ export default function StaffPage() {
   const [message, setMessage] = useState("");
   const [amount, setAmount] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [activeModule, setActiveModule] = useState<"points" | "workshop" | "customers">("points");
+  const [activeModule, setActiveModule] = useState<"points" | "workshop" | "customers" | "registration">("points");
 
   const pointsPreview = useMemo(() => {
     const parsed = Number(amount);
@@ -108,7 +109,7 @@ export default function StaffPage() {
           headers: adminHeaders(),
         });
         const result = await response.json();
-        if (!response.ok) throw new Error(result.error || "La sesiÃ³n no es vÃ¡lida.");
+        if (!response.ok) throw new Error(result.error || "La sesión no es válida.");
         setAdmin(result.admin);
       } catch {
         localStorage.removeItem(ADMIN_TOKEN_KEY);
@@ -138,13 +139,13 @@ export default function StaffPage() {
         }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "No se pudo iniciar sesiÃ³n.");
+      if (!response.ok) throw new Error(result.error || "No se pudo iniciar sesión.");
 
       localStorage.setItem(ADMIN_TOKEN_KEY, result.token);
       setAdmin(result.admin);
       form.reset();
     } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : "No se pudo iniciar sesiÃ³n.");
+      setError(loginError instanceof Error ? loginError.message : "No se pudo iniciar sesión.");
     } finally {
       setLoginLoading(false);
     }
@@ -166,7 +167,7 @@ export default function StaffPage() {
         { cache: "no-store", headers: adminHeaders() },
       );
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "No se encontrÃ³ el cliente.");
+      if (!response.ok) throw new Error(result.error || "No se encontró el cliente.");
 
       const customers: Customer[] = result.customers || [];
       if (customers.length === 1) {
@@ -175,7 +176,7 @@ export default function StaffPage() {
         setSearchResults(customers);
       }
     } catch (searchError) {
-      setError(searchError instanceof Error ? searchError.message : "No se encontrÃ³ el cliente.");
+      setError(searchError instanceof Error ? searchError.message : "No se encontró el cliente.");
     } finally {
       setSearchLoading(false);
     }
@@ -210,8 +211,8 @@ export default function StaffPage() {
       form.reset();
       setMessage(
         result.notifications?.emailSent
-          ? `Listo: se agregaron ${result.points} puntos y el cliente recibiÃ³ el correo.`
-          : `Se agregaron ${result.points} puntos. El correo no pudo enviarse; los puntos sÃ­ quedaron guardados.`,
+          ? `Listo: se agregaron ${result.points} puntos y el cliente recibió el correo.`
+          : `Se agregaron ${result.points} puntos. El correo no pudo enviarse; los puntos sí quedaron guardados.`,
       );
     } catch (awardError) {
       setError(awardError instanceof Error ? awardError.message : "No se pudieron acreditar los puntos.");
@@ -220,7 +221,14 @@ export default function StaffPage() {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/admin-portal/logout`, { method: "POST", headers: adminHeaders() });
+      if (!response.ok && response.status !== 401) throw new Error("No se pudo cerrar la sesión.");
+    } catch {
+      setError("No se pudo cerrar la sesión. Revisá tu conexión e intentá de nuevo.");
+      return;
+    }
     localStorage.removeItem(ADMIN_TOKEN_KEY);
     setAdmin(null);
     setCustomer(null);
@@ -230,7 +238,7 @@ export default function StaffPage() {
   };
 
   if (sessionLoading) {
-    return <main className={styles.shell}><p className={styles.loading}>Validando accesoâ€¦</p></main>;
+    return <main className={styles.shell}><p className={styles.loading}>Validando acceso…</p></main>;
   }
 
   if (!admin) {
@@ -238,16 +246,16 @@ export default function StaffPage() {
       <main className={styles.shell}>
         <section className={styles.loginCard}>
           <Link href="/" className={styles.brand}>
-            <img src="/logo-jamiro.png" alt="Taller Automotriz Jamiro" />
+            <img src="/logo-jamiro.png" alt="Taller Multiservicios Jamiro" />
             <span>Panel administrativo</span>
           </Link>
           <p className={styles.kicker}>Acceso privado</p>
           <h1>Admin Jamiro</h1>
-          <p className={styles.intro}>IngresÃ¡ con la cuenta administrativa de Jairo.</p>
+          <p className={styles.intro}>Ingresá con la cuenta administrativa de Jairo.</p>
           <form onSubmit={login} className={styles.form}>
             <label>Correo del administrador<input name="email" type="email" autoComplete="username" defaultValue="automotrizjamirosc@gmail.com" required /></label>
             <label>
-              ContraseÃ±a
+              Contraseña
               <span style={{ position: "relative", display: "block" }}>
                 <input
                   name="password"
@@ -259,9 +267,9 @@ export default function StaffPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((visible) => !visible)}
-                  aria-label={showPassword ? "Ocultar contraseÃ±a" : "Mostrar contraseÃ±a"}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   aria-pressed={showPassword}
-                  title={showPassword ? "Ocultar contraseÃ±a" : "Mostrar contraseÃ±a"}
+                  title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   style={{
                     position: "absolute",
                     top: "50%",
@@ -292,7 +300,7 @@ export default function StaffPage() {
               </span>
             </label>
             {error && <p className={styles.error} role="alert">{error}</p>}
-            <button disabled={loginLoading}>{loginLoading ? "Ingresandoâ€¦" : "Ingresar"}</button>
+            <button disabled={loginLoading}>{loginLoading ? "Ingresando…" : "Ingresar"}</button>
           </form>
           <Link href="/" className={styles.back}>â† Volver al sitio</Link>
         </section>
@@ -304,16 +312,16 @@ export default function StaffPage() {
     <main className={styles.dashboard}>
       <header className={styles.header}>
         <Link href="/" className={styles.brand}>
-          <img src="/logo-jamiro.png" alt="Taller Automotriz Jamiro" />
+          <img src="/logo-jamiro.png" alt="Taller Multiservicios Jamiro" />
           <span>Panel administrativo</span>
         </Link>
         <div className={styles.session}>
-          <span><small>SesiÃ³n administrativa</small>{admin.name}</span>
-          <button type="button" onClick={logout}>Cerrar sesiÃ³n</button>
+          <span><small>Sesión administrativa</small>{admin.name}</span>
+          <button type="button" onClick={logout}>Cerrar sesión</button>
         </div>
       </header>
 
-      <nav className={styles.moduleNav} aria-label="MÃ³dulos del portal">
+      <nav className={styles.moduleNav} aria-label="Módulos del portal">
         <button className={activeModule === "points" ? styles.moduleActive : ""} onClick={() => setActiveModule("points")}>Acreditar puntos</button>
         <button className={activeModule === "workshop" ? styles.moduleActive : ""} onClick={() => setActiveModule("workshop")}>Procesos del taller</button>
         <button
@@ -325,30 +333,31 @@ export default function StaffPage() {
         >
           Clientes registrados
         </button>
+        <button type="button" className={activeModule === "registration" ? styles.moduleActive : ""} onClick={() => setActiveModule("registration")}>Registrar clientes</button>
       </nav>
 
-      {activeModule === "points" ? <section className={styles.content}>
+      {activeModule === "registration" ? <CustomerRegistration tokenKey={ADMIN_TOKEN_KEY} /> : activeModule === "points" ? <section className={styles.content}>
         <div className={styles.heading}>
           <p className={styles.kicker}>Club Jamiro</p>
           <h1>Acreditar puntos</h1>
-          <p>BuscÃ¡ al cliente por nombre, correo o telÃ©fono, verificÃ¡ sus datos y registrÃ¡ el monto pagado.</p>
+          <p>Buscá al cliente por nombre, correo o teléfono, verificá sus datos y registrá el monto pagado.</p>
         </div>
 
         <section className={styles.panel}>
           <div className={styles.step}><span>01</span><div><small>Localizar cuenta</small><h2>Buscar cliente</h2></div></div>
           <form onSubmit={searchCustomer} className={styles.searchForm}>
             <label>
-              Nombre, correo o telÃ©fono
+              Nombre, correo o teléfono
               <input
                 name="query"
                 type="search"
                 minLength={2}
                 maxLength={120}
-                placeholder="Ej. MarÃ­a, cliente@correo.com o 8888-8888"
+                placeholder="Ej. María, cliente@correo.com o 8888-8888"
                 required
               />
             </label>
-            <button disabled={searchLoading}>{searchLoading ? "Buscandoâ€¦" : "Buscar cliente"}</button>
+            <button disabled={searchLoading}>{searchLoading ? "Buscando…" : "Buscar cliente"}</button>
           </form>
         </section>
 
@@ -356,8 +365,8 @@ export default function StaffPage() {
           <section className={styles.resultsPanel} aria-labelledby="search-results-title">
             <div>
               <p className={styles.kicker}>Coincidencias encontradas</p>
-              <h2 id="search-results-title">ElegÃ­ el cliente correcto</h2>
-              <p>Encontramos {searchResults.length} cuentas. VerificÃ¡ el correo y el telÃ©fono antes de continuar.</p>
+              <h2 id="search-results-title">Elegí el cliente correcto</h2>
+              <p>Encontramos {searchResults.length} cuentas. Verificá el correo y el teléfono antes de continuar.</p>
             </div>
             <div className={styles.resultsList}>
               {searchResults.map((result) => (
@@ -391,7 +400,7 @@ export default function StaffPage() {
               <p className={styles.kicker}>Cliente encontrado</p>
               <h2>{customer.name}</h2>
               <dl>
-                <div><dt>CÃ³digo</dt><dd>{customer.customerId}</dd></div>
+                <div><dt>Código</dt><dd>{customer.customerId}</dd></div>
                 <div><dt>Correo</dt><dd>{customer.email}</dd></div>
                 <div><dt>WhatsApp</dt><dd>{customer.phone}</dd></div>
               </dl>
@@ -418,13 +427,13 @@ export default function StaffPage() {
                   />
                 </label>
                 <div className={styles.preview}>
-                  <span>{amount ? colones(Number(amount)) : "â‚¡0"}</span>
+                  <span>{amount ? colones(Number(amount)) : "₡0"}</span>
                   <strong>+{pointsPreview} puntos</strong>
                 </div>
-                <label>NÃºmero de factura <small>(opcional)</small><input name="invoiceNumber" maxLength={100} placeholder="Ej. FAC-1048" /></label>
-                <label>DescripciÃ³n<input name="description" defaultValue="Compra o servicio confirmado" minLength={3} maxLength={200} required /></label>
+                <label>Número de factura <small>(opcional)</small><input name="invoiceNumber" maxLength={100} placeholder="Ej. FAC-1048" /></label>
+                <label>Descripción<input name="description" defaultValue="Compra o servicio confirmado" minLength={3} maxLength={200} required /></label>
                 <button disabled={awardLoading || pointsPreview <= 0}>
-                  {awardLoading ? "Guardandoâ€¦" : `Confirmar +${pointsPreview} puntos`}
+                  {awardLoading ? "Guardando…" : `Confirmar +${pointsPreview} puntos`}
                 </button>
               </form>
             </section>
@@ -436,7 +445,7 @@ export default function StaffPage() {
             <div className={styles.heading}>
               <p className={styles.kicker}>Club Jamiro</p>
               <h1>Clientes registrados</h1>
-              <p>ConsultÃ¡ las cuentas creadas, sus datos de contacto y el saldo actual de puntos.</p>
+              <p>Consultá las cuentas creadas, sus datos de contacto y el saldo actual de puntos.</p>
             </div>
             <div className={styles.customerTotal}>
               <small>Total registrado</small>
@@ -452,11 +461,11 @@ export default function StaffPage() {
                   type="search"
                   value={customerFilter}
                   onChange={(event) => setCustomerFilter(event.target.value)}
-                  placeholder="Nombre, correo, telÃ©fono o cÃ³digo"
+                  placeholder="Nombre, correo, teléfono o código"
                 />
               </label>
               <button type="button" onClick={loadCustomers} disabled={customersLoading}>
-                {customersLoading ? "Actualizandoâ€¦" : "Actualizar lista"}
+                {customersLoading ? "Actualizando…" : "Actualizar lista"}
               </button>
             </div>
           </section>
@@ -465,23 +474,23 @@ export default function StaffPage() {
 
           {!customersLoading && !error && filteredCustomers.length === 0 && (
             <p className={styles.emptyState}>
-              {customers.length === 0 ? "TodavÃ­a no hay clientes registrados." : "No hay clientes que coincidan con la bÃºsqueda."}
+              {customers.length === 0 ? "Todavía no hay clientes registrados." : "No hay clientes que coincidan con la búsqueda."}
             </p>
           )}
 
           {filteredCustomers.length > 0 && (
             <div className={styles.customersTableWrap}>
               <table className={styles.customersTable}>
-                <thead><tr><th>Cliente</th><th>Contacto</th><th>CÃ³digo</th><th>Puntos</th><th>Referidos</th><th>Registro</th></tr></thead>
+                <thead><tr><th>Cliente</th><th>Contacto</th><th>Código</th><th>Puntos</th><th>Referidos</th><th>Registro</th></tr></thead>
                 <tbody>
                   {filteredCustomers.map((item) => (
                     <tr key={item.id}>
                       <td data-label="Cliente"><strong>{item.name}</strong></td>
                       <td data-label="Contacto"><a href={`mailto:${item.email}`}>{item.email}</a><span>{item.phone}</span></td>
-                      <td data-label="CÃ³digo"><code>{item.customerId}</code></td>
-                      <td data-label="Puntos"><strong className={styles.pointsValue}>{item.totalPoints}</strong><small>{item.purchasePoints} compras Â· {item.referralPoints} referidos</small></td>
+                      <td data-label="Código"><code>{item.customerId}</code></td>
+                      <td data-label="Puntos"><strong className={styles.pointsValue}>{item.totalPoints}</strong><small>{item.purchasePoints} compras · {item.referralPoints} referidos</small></td>
                       <td data-label="Referidos">{item.referralCount || 0}</td>
-                      <td data-label="Registro">{item.createdAt ? new Intl.DateTimeFormat("es-CR", { dateStyle: "medium" }).format(new Date(item.createdAt)) : "â€”"}</td>
+                      <td data-label="Registro">{item.createdAt ? new Intl.DateTimeFormat("es-CR", { dateStyle: "medium" }).format(new Date(item.createdAt)) : "—"}</td>
                     </tr>
                   ))}
                 </tbody>

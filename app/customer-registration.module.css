@@ -1,0 +1,2 @@
+.consent { display: flex; align-items: center; gap: 10px; }
+.consent input[type="checkbox"] { width: 18px; height: 18px; min-height: 18px; margin: 0; flex: 0 0 auto; }

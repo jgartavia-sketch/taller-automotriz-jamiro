@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { PASSWORD_REQUIREMENTS, PASSWORD_PATTERN, validateNewPassword } from "./password-policy";
 import ServiceTracker from "./ServiceTracker";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
@@ -61,9 +62,7 @@ export default function Home() {
   const isAbout = pathname === "/nosotros" || pathname === "/contacto";
   const isLogin = pathname === "/login";
   const isAccount = pathname === "/mi-cuenta";
-  const [quoteOpen, setQuoteOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [sent, setSent] = useState(false);
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [authMessage, setAuthMessage] = useState("");
   const [authError, setAuthError] = useState("");
@@ -76,9 +75,11 @@ export default function Home() {
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [partRequestLoading, setPartRequestLoading] = useState(false);
+  const [partRequestWhatsapp, setPartRequestWhatsapp] = useState("");
   const [partRequestError, setPartRequestError] = useState("");
   const [selectedService, setSelectedService] = useState("Mecánica general");
   const [serviceRequestLoading, setServiceRequestLoading] = useState(false);
+  const [serviceRequestWhatsapp, setServiceRequestWhatsapp] = useState("");
   const [serviceRequestError, setServiceRequestError] = useState("");
 
   useEffect(() => {
@@ -126,6 +127,7 @@ export default function Home() {
     event.preventDefault();
     setPartRequestLoading(true);
     setPartRequestError("");
+    setPartRequestWhatsapp("");
 
     const form = event.currentTarget;
     const data = new FormData(form);
@@ -150,7 +152,7 @@ export default function Home() {
       }
 
       const message = [
-        "Hola, Taller Automotriz Jamiro. Necesito cotizar un repuesto usado:",
+        "Hola, Taller Multiservicios Jamiro. Necesito cotizar un repuesto usado:",
         "",
         `Solicitud: ${result.request.id}`,
         `Nombre: ${payload.name}`,
@@ -161,11 +163,7 @@ export default function Home() {
         `Detalles adicionales: ${payload.details || "Sin detalles adicionales"}`,
       ].join("\n");
 
-      window.open(
-        `https://wa.me/50670111090?text=${encodeURIComponent(message)}`,
-        "_blank",
-        "noopener,noreferrer",
-      );
+      setPartRequestWhatsapp(`https://wa.me/50670111090?text=${encodeURIComponent(message)}`);
       form.reset();
     } catch (error) {
       setPartRequestError(
@@ -180,6 +178,7 @@ export default function Home() {
     event.preventDefault();
     setServiceRequestLoading(true);
     setServiceRequestError("");
+    setServiceRequestWhatsapp("");
 
     const form = event.currentTarget;
     const data = new FormData(form);
@@ -203,7 +202,7 @@ export default function Home() {
       if (!response.ok) throw new Error(result.error || "No pudimos registrar la solicitud.");
 
       const message = [
-        "Hola, Taller Automotriz Jamiro. Quiero solicitar un servicio:",
+        "Hola, Taller Multiservicios Jamiro. Quiero solicitar un servicio:",
         "",
         `Solicitud: ${result.request.id}`,
         `Nombre: ${payload.name}`,
@@ -215,7 +214,7 @@ export default function Home() {
         "Entiendo que la fecha debe ser confirmada por el taller.",
       ].join("\n");
 
-      window.open(`https://wa.me/50670111090?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      setServiceRequestWhatsapp(`https://wa.me/50670111090?text=${encodeURIComponent(message)}`);
       form.reset();
       setSelectedService("Mecánica general");
     } catch (error) {
@@ -230,6 +229,8 @@ export default function Home() {
     setAuthLoading(true);
     setAuthError("");
     const data = new FormData(event.currentTarget);
+    const passwordError = validateNewPassword(String(data.get("password") || ""), String(data.get("confirmPassword") || ""));
+    if (passwordError) { setAuthError(passwordError); setAuthLoading(false); return; }
     try {
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
@@ -239,6 +240,7 @@ export default function Home() {
           email: data.get("email"),
           phone: data.get("phone"),
           password: data.get("password"),
+          confirmPassword: data.get("confirmPassword"),
           referral: data.get("referral"),
         }),
       });
@@ -246,7 +248,7 @@ export default function Home() {
       if (!response.ok) throw new Error(result.error || "No pudimos crear la cuenta.");
       localStorage.setItem(TOKEN_KEY, result.token);
       setProfile(result.customer);
-      setAuthMessage("Tu cuenta está activa. El correo de bienvenida está en proceso.");
+      setAuthMessage(result.notifications?.welcomeEmailQueued ? "Tu cuenta está activa. El correo de bienvenida está en proceso." : "Tu cuenta está activa. Ya podés ingresar con tu correo y contraseña.");
       router.replace("/mi-cuenta");
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : "No pudimos crear la cuenta.");
@@ -257,24 +259,21 @@ export default function Home() {
 
   const generateReferralCode = async () => {
     setAuthError("");
-    const response = await fetch(`${API_URL}/api/referrals`, {
-      method: "POST",
-      headers: authHeaders(),
-    });
-    const result = await response.json();
-    if (!response.ok) {
-      setAuthError(result.error || "No pudimos generar el código.");
-      return;
-    }
-    setReferralCode(result.code);
-    setReferralExpiry(result.expiry);
-    setCopied(false);
+    try {
+      const response = await fetch(`${API_URL}/api/referrals`, { method: "POST", headers: authHeaders() });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "No pudimos generar el código.");
+      setReferralCode(result.code); setReferralExpiry(result.expiry); setCopied(false);
+    } catch (error) { setAuthError(error instanceof Error ? error.message : "No hay conexión con el servidor."); }
   };
 
   const copyReferralCode = async () => {
     if (!referralCode) return;
-    await navigator.clipboard?.writeText(referralCode);
-    setCopied(true);
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(referralCode);
+      setCopied(true); setAuthError("");
+    } catch { setCopied(false); setAuthError("No pudimos copiar el código automáticamente. Seleccionalo y copialo manualmente."); }
   };
 
   const loginCustomer = async (event: FormEvent<HTMLFormElement>) => {
@@ -294,6 +293,7 @@ export default function Home() {
       localStorage.setItem(TOKEN_KEY, result.token);
       setProfile(result.customer);
       setAuthMessage("Sesión iniciada correctamente.");
+      router.replace("/mi-cuenta");
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : "No pudimos iniciar sesión.");
     } finally {
@@ -302,6 +302,13 @@ export default function Home() {
   };
 
   const logoutCustomer = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/logout`, { method: "POST", headers: authHeaders() });
+      if (!response.ok && response.status !== 401) throw new Error("No se pudo cerrar la sesión.");
+    } catch {
+      setAuthError("No se pudo cerrar la sesión. Revisá tu conexión e intentá de nuevo.");
+      return;
+    }
     localStorage.removeItem(TOKEN_KEY);
     setProfile(null);
     setMovements([]);
@@ -310,22 +317,44 @@ export default function Home() {
     setAuthMessage("");
   };
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const dismissOutside = (event: PointerEvent) => {
+      if (event.target instanceof Element && !event.target.closest(".site-header")) setMenuOpen(false);
+    };
+    const dismissEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        document.querySelector<HTMLButtonElement>(".menu-toggle")?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", dismissOutside);
+    document.addEventListener("keydown", dismissEscape);
+    return () => {
+      document.removeEventListener("pointerdown", dismissOutside);
+      document.removeEventListener("keydown", dismissEscape);
+    };
+  }, [menuOpen]);
+
   const totalPoints = useMemo(
     () => (profile?.purchasePoints || 0) + (profile?.referralPoints || 0),
     [profile],
   );
 
+  const lastPurchase = movements.find((movement) => movement.kind === "PURCHASE");
+
   return (
     <main>
       <header className="site-header">
-        <Link className="brand" href="/" aria-label="Taller Automotriz Jamiro, inicio">
-          <img src="/logo-jamiro.png" alt="Taller Automotriz Jamiro" />
-          <span><strong>Taller Automotriz</strong>Jamiro</span>
+        <Link className="brand" onClick={() => setMenuOpen(false)} href="/" aria-label="Taller Multiservicios Jamiro, inicio">
+          <img src="/logo-jamiro.png" alt="Taller Multiservicios Jamiro" />
+          <span><strong>Taller Multiservicios</strong>Jamiro</span>
         </Link>
 
         <button
           className="menu-toggle"
-          onClick={() => setMenuOpen(!menuOpen)}
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
           aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={menuOpen}
           aria-controls="main-navigation"
@@ -342,7 +371,7 @@ export default function Home() {
 
         <div className="header-actions">
           <Link className="button button-small" href="/servicios#solicitar-servicio">Cotizar ahora</Link>
-          <Link className="account-link" href={profile ? "/mi-cuenta" : "/login"}>{profile ? "Mi cuenta" : "Ingresar"}</Link>
+          <Link className="account-link" onClick={() => setMenuOpen(false)} href={profile ? "/mi-cuenta" : "/login"}>{profile ? "Mi cuenta" : "Ingresar"}</Link>
         </div>
       </header>
 
@@ -370,7 +399,7 @@ export default function Home() {
           <div className="logo-stage">
             <div className="orbit orbit-one" />
             <div className="orbit orbit-two" />
-            <img src="/logo-jamiro.png" alt="Logo de Taller Automotriz Jamiro" />
+            <img src="/logo-jamiro.png" alt="Logo de Taller Multiservicios Jamiro" />
           </div>
         </div>
       </section>}
@@ -424,6 +453,11 @@ export default function Home() {
                         type={showRegisterPassword ? "text" : "password"}
                         required
                         minLength={8}
+                        maxLength={72}
+                        autoComplete="new-password"
+                        pattern={PASSWORD_PATTERN}
+                        title={PASSWORD_REQUIREMENTS}
+                        aria-describedby="registration-password-help"
                         placeholder="Mínimo 8 caracteres"
                       />
                       <button
@@ -445,6 +479,10 @@ export default function Home() {
                         )}
                       </button>
                     </div>
+                  </label>
+                  <p id="registration-password-help" className="password-help">{PASSWORD_REQUIREMENTS}</p>
+                  <label>Confirmar contraseña
+                    <input name="confirmPassword" type={showRegisterPassword ? "text" : "password"} autoComplete="new-password" minLength={8} maxLength={72} required placeholder="Escribí de nuevo tu contraseña" />
                   </label>
                   <label>Código de referido <small>Opcional</small><input name="referral" placeholder="Ej. JAMIRO-A7K29Q" /></label>
                   <label className="terms-check"><input type="checkbox" required /><span>Acepto los términos del programa de fidelización.</span></label>
@@ -504,7 +542,7 @@ export default function Home() {
         <div className="benefit-strip">
           <div><span>01</span><strong>Comprá o recibí un servicio</strong><p>Sumás puntos personales por cada transacción confirmada.</p></div>
           <div><span>02</span><strong>Invitá con un código</strong><p>Cada código es único, vence en tres días y funciona una sola vez.</p></div>
-          <div><span>03</span><strong>Tu red también suma</strong><p>Ganás puntos cuando tus referidos compran o visitan el taller.</p></div>
+          <div><span>03</span><strong>Tu red también suma</strong><p>Ganás puntos cuando alguien se registra con tu código.</p></div>
         </div>
       </section>}
 
@@ -585,7 +623,7 @@ export default function Home() {
               <div className="account-summary">
                 <article><small>Referidos activos</small><strong>{profile.referrals}</strong><p>Personas registradas con tus códigos.</p></article>
                 <article><small>Próxima recompensa</small><strong>{Math.max(0, 850 - totalPoints)} pts</strong><p>Para desbloquear Pre-DEKRA completo.</p></article>
-                <article><small>Última visita</small><strong>18 JUL</strong><p>Cambio de aceite premium.</p></article>
+                <article><small>Última compra registrada</small><strong>{lastPurchase ? new Intl.DateTimeFormat("es-CR", { day: "2-digit", month: "short", timeZone: "America/Costa_Rica" }).format(new Date(lastPurchase.created_at)) : "Sin registro"}</strong><p>{lastPurchase?.description || "Tus compras confirmadas aparecerán aquí."}</p></article>
               </div>
             </div>
 
@@ -594,13 +632,14 @@ export default function Home() {
             <div className="account-section">
               <div className="subheading"><div><p className="eyebrow"><span /> Beneficios</p><h3>Recompensas disponibles</h3></div><p>Los puntos se descuentan únicamente cuando el beneficio es confirmado por el taller.</p></div>
               <div className="reward-grid">{rewards.map((reward) => {
-                const unlocked = totalPoints >= reward.points;
-                return <article className={unlocked ? "reward-card unlocked" : "reward-card"} key={reward.title}><span>{reward.points} pts</span><h4>{reward.title}</h4><p>{reward.detail}</p><button disabled={!unlocked}>{unlocked ? "Canjear beneficio" : `Te faltan ${reward.points - totalPoints} pts`}</button></article>;
+                const unlocked = reward.available && totalPoints >= reward.points;
+                return <article className={unlocked ? "reward-card unlocked" : "reward-card"} key={reward.title}><span>{reward.points} pts</span><h4>{reward.title}</h4><p>{reward.detail}</p>{unlocked ? <a className="button" href={`https://wa.me/50670111090?text=${encodeURIComponent(`Hola, quiero coordinar el canje de ${reward.title} (${reward.points} puntos). Mi código de cliente es ${profile.customerId}.`)}`} target="_blank" rel="noopener noreferrer">Solicitar canje →</a> : <button disabled>{reward.available ? `Te faltan ${Math.max(0, reward.points - totalPoints)} pts` : "Próximamente"}</button>}</article>;
               })}</div>
             </div>
 
             <div className="account-columns">
               <div className="account-section referral-center">
+                {authError && <p className="inline-error" role="alert">{authError}</p>}
                 <p className="eyebrow"><span /> Crecé tu red</p><h3>Invitar a alguien</h3><p>El código vence en tres días y solo puede utilizarse una vez. Podés generar otro cuando el anterior expire o sea utilizado.</p>
                 <div className="referral-generator">
                   <div><small>Código activo</small><strong>{referralCode || "Sin código activo"}</strong>{referralCode && <span>Vence {new Date(referralExpiry).toLocaleDateString("es-CR")}</span>}</div>
@@ -662,7 +701,7 @@ export default function Home() {
           <div className="service-request-copy">
             <p className="eyebrow"><span /> Solicitud registrada</p>
             <h3>Contanos qué necesita tu vehículo.</h3>
-            <p>Guardaremos la solicitud para darle seguimiento desde el panel y luego abriremos WhatsApp para coordinar los detalles.</p>
+            <p>Registrá tu solicitud y después tocá “Continuar en WhatsApp” para coordinar los detalles con el taller.</p>
             <div className="parts-benefits">
               <span>✓ Seguimiento interno</span>
               <span>✓ Atención por WhatsApp</span>
@@ -685,8 +724,9 @@ export default function Home() {
             </div>
             <label>Descripción del problema<textarea name="problem" required placeholder="Contanos qué síntomas presenta o qué trabajo necesitás." /></label>
             <label>Fecha preferida <small>Opcional; no confirma una cita</small><input name="preferredDate" type="date" /></label>
-            {serviceRequestError && <p className="inline-error">{serviceRequestError}</p>}
-            <button className="button" type="submit" disabled={serviceRequestLoading}>{serviceRequestLoading ? "Registrando solicitud..." : <>Enviar y coordinar por WhatsApp <b>→</b></>}</button>
+            {serviceRequestError && <p className="inline-error" role="alert">{serviceRequestError}</p>}
+            {serviceRequestWhatsapp && <div className="inline-success" role="status"><p>Solicitud registrada. Continuá por WhatsApp para coordinar.</p><a className="button" href={serviceRequestWhatsapp} target="_blank" rel="noopener noreferrer">Continuar en WhatsApp →</a></div>}
+            <button className="button" type="submit" disabled={serviceRequestLoading}>{serviceRequestLoading ? "Registrando solicitud..." : <>Registrar solicitud <b>→</b></>}</button>
             <small className="form-note">Jamiro confirmará por WhatsApp la fecha y disponibilidad del servicio.</small>
           </form>
         </article>
@@ -701,7 +741,7 @@ export default function Home() {
         <div className="shop-sections">
           <article className="catalog-coming-soon">
             <div className="catalog-symbol">
-              <img src="/logo-jamiro.png" alt="Logo de Taller Automotriz Jamiro" />
+              <img src="/logo-jamiro.png" alt="Logo de Taller Multiservicios Jamiro" />
             </div>
             <div>
               <p className="eyebrow"><span /> Productos nuevos</p>
@@ -715,7 +755,7 @@ export default function Home() {
             <div className="used-parts-copy">
               <p className="eyebrow"><span /> Más de 1.000 repuestos usados</p>
               <h3>Decinos qué repuesto necesitás.</h3>
-              <p>Completá los datos de tu vehículo. Al enviar, WhatsApp abrirá una solicitud ordenada para que el equipo de Jamiro revise disponibilidad.</p>
+              <p>Completá los datos de tu vehículo. Después de registrar la solicitud, tocá “Continuar en WhatsApp” para consultar disponibilidad.</p>
               <div className="parts-benefits">
                 <span>✓ Consulta rápida</span>
                 <span>✓ Atención directa</span>
@@ -732,11 +772,12 @@ export default function Home() {
               <label>Año del vehículo<input name="year" required inputMode="numeric" pattern="[0-9]{4}" placeholder="Ej. 2018" /></label>
               <label>Repuesto que necesitás<input name="part" required placeholder="Ej. alternador, bumper, compresor..." /></label>
               <label>Detalles adicionales <small>Opcional</small><textarea name="details" placeholder="Motor, versión, lado del vehículo o cualquier dato que ayude a identificarlo." /></label>
-              {partRequestError && <p className="inline-error">{partRequestError}</p>}
+              {partRequestError && <p className="inline-error" role="alert">{partRequestError}</p>}
+              {partRequestWhatsapp && <div className="inline-success" role="status"><p>Solicitud registrada. Continuá por WhatsApp para consultar disponibilidad.</p><a className="button" href={partRequestWhatsapp} target="_blank" rel="noopener noreferrer">Continuar en WhatsApp →</a></div>}
                 <button className="button" type="submit" disabled={partRequestLoading}>
-                  {partRequestLoading ? "Registrando solicitud..." : <>Consultar por WhatsApp <b>→</b></>}
+                  {partRequestLoading ? "Registrando solicitud..." : <>Registrar consulta <b>→</b></>}
                 </button>
-              <small className="form-note">La solicitud queda registrada para seguimiento y luego abre el WhatsApp oficial de Jamiro.</small>
+              <small className="form-note">Después de registrar la solicitud, continuá al WhatsApp oficial de Jamiro con el botón de confirmación.</small>
             </form>
           </article>
         </div>
@@ -745,7 +786,7 @@ export default function Home() {
       {isAbout && <section className="section about-contact page-section" id="nosotros">
         <div className="about-contact-intro">
           <div className="about-copy">
-            <p className="eyebrow"><span /> Taller Automotriz Jamiro</p>
+            <p className="eyebrow"><span /> Taller Multiservicios Jamiro</p>
             <h2>16 años haciendo que la confianza vuelva a la carretera.</h2>
             <p>Experiencia real en electromecánica, mecánica general y mantenimiento automotriz, con atención clara antes, durante y después de cada trabajo.</p>
           </div>
@@ -773,41 +814,16 @@ export default function Home() {
       </section>}
 
       <footer>
-        <div className="brand footer-brand"><img src="/logo-jamiro.png" alt="" /><span><strong>Taller Automotriz</strong>Jamiro</span></div>
+        <div className="brand footer-brand"><img src="/logo-jamiro.png" alt="" /><span><strong>Taller Multiservicios</strong>Jamiro</span></div>
         <div className="footer-contact" aria-label="Información de contacto">
           <p><strong>Teléfono y WhatsApp</strong>+506 7011-1090</p>
           <p><strong>Correo</strong>automotrizjamirosc@gmail.com</p>
           <p><strong>Ubicación</strong>150 m del Súper San Juan, San Carlos</p>
         </div>
-        <p className="footer-copyright">© 2026 Taller Automotriz Jamiro</p>
+        <p className="footer-copyright">© 2026 Taller Multiservicios Jamiro</p>
       </footer>
 
-      {quoteOpen && (
-        <div className="modal-backdrop" onMouseDown={() => setQuoteOpen(false)}>
-          <section className="modal" onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="Solicitar cotización">
-            <button className="modal-close" onClick={() => setQuoteOpen(false)}>×</button>
-            {!sent ? (
-              <>
-                <p className="eyebrow"><span /> Cotización en línea</p>
-                <h2>Contanos qué necesita tu vehículo.</h2>
-                <p>Esta primera versión simula el recorrido que tendrá el cliente.</p>
-                <form onSubmit={(event) => { event.preventDefault(); setSent(true); }}>
-                  <label>Nombre completo<input required placeholder="Ej. José Artavia" /></label>
-                  <div className="form-row">
-                    <label>Teléfono<input required placeholder="8888-8888" /></label>
-                    <label>Vehículo<input required placeholder="Toyota Corolla 2018" /></label>
-                  </div>
-                  <label>Servicio<select defaultValue=""><option value="" disabled>Seleccioná una opción</option><option>Electromecánica</option><option>Mecánica general</option><option>Pre-DEKRA</option><option>Cambio de aceite</option><option>Otro diagnóstico</option></select></label>
-                  <label>¿Qué está pasando?<textarea required placeholder="Describí el problema, ruido, testigo o servicio que necesitás..." /></label>
-                  <button className="button" type="submit">Enviar solicitud →</button>
-                </form>
-              </>
-            ) : (
-              <div className="success-state"><span>✓</span><h2>Solicitud recibida</h2><p>El equipo de Jamiro revisará la información para preparar tu cotización.</p><button className="button" onClick={() => { setSent(false); setQuoteOpen(false); }}>Listo</button></div>
-            )}
-          </section>
-        </div>
-      )}
+
 
     </main>
   );

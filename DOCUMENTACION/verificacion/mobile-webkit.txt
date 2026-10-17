@@ -1,0 +1,13 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+⚠ Warning: Next.js ignored package-lock.json in /workspace/scratch/ed3963b81423 because it is outside the current Git repository (/workspace/scratch/ed3963b81423/frontend).
+ To use this directory, set `outputFileTracingRoot` in your Next.js config.
+
+PASS webkit / Pixel 7: menú táctil, cierre, registro y contraseñas, horizontal, solicitudes de servicios/repuestos con botón WhatsApp, staff, recepción y foto comprimida. API simulada.
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+PASS webkit / iPhone SE: menú táctil, cierre, registro y contraseñas, horizontal, solicitudes de servicios/repuestos con botón WhatsApp, staff, recepción y foto comprimida. API simulada.
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+PASS webkit / iPhone 13: menú táctil, cierre, registro y contraseñas, horizontal, solicitudes de servicios/repuestos con botón WhatsApp, staff, recepción y foto comprimida. API simulada.
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+PASS webkit / iPhone SE 320: menú táctil, cierre, registro y contraseñas, horizontal, solicitudes de servicios/repuestos con botón WhatsApp, staff, recepción y foto comprimida. API simulada.
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+PASS webkit / iPad Mini: menú táctil, cierre, registro y contraseñas, horizontal, solicitudes de servicios/repuestos con botón WhatsApp, staff, recepción y foto comprimida. API simulada.

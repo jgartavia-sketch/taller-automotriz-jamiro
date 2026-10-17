@@ -1,0 +1,9 @@
+▲ Next.js 16.4.1
+- Local:         http://127.0.0.1:3102
+- Network:       http://127.0.0.1:3102
+✓ Ready in 148ms
+⚠ Warning: Next.js ignored package-lock.json in /workspace/scratch/ed3963b81423 because it is outside the current Git repository (/workspace/scratch/ed3963b81423/frontend).
+ To use this directory, set `outputFileTracingRoot` in your Next.js config.
+
+✓ Running next.config.ts took 32ms
+UI PASS: recepción registra clientes; mecánico recibe vehículos; admin accede al registro; login cliente redirige a Mi cuenta; rutas públicas en móvil sin desborde; sin errores JS. Política y confirmación de contraseña pública e interna verificadas. API simulada.
