@@ -1,0 +1,50 @@
+[
+  {
+    "id": "gulf-20w50",
+    "name": "Gulf Max Ultra GDI 20W-50",
+    "presentation": "1 litro",
+    "price": 5000,
+    "stock": 52,
+    "image": "/productos/gulf-20w50.webp"
+  },
+  {
+    "id": "gulf-10w30",
+    "name": "Gulf Max Ultra GDI 10W-30",
+    "presentation": "1 litro",
+    "price": 5000,
+    "stock": 13,
+    "image": "/productos/gulf-10w30.webp"
+  },
+  {
+    "id": "gulf-15w40",
+    "name": "Gulf Superfleet Supreme+ 15W-40",
+    "presentation": "1 litro",
+    "price": 5000,
+    "stock": 42,
+    "image": "/productos/gulf-15w40.webp"
+  },
+  {
+    "id": "havoline-cvt",
+    "name": "Havoline Full Synthetic CVT+",
+    "presentation": "946 ml",
+    "price": 7600,
+    "stock": 4,
+    "image": "/productos/havoline-cvt.webp"
+  },
+  {
+    "id": "engel-desengrasante",
+    "name": "Desengrasante industrial Engel",
+    "presentation": "1 galón",
+    "price": 4500,
+    "stock": null,
+    "image": "/productos/engel-desengrasante.webp"
+  },
+  {
+    "id": "engel-coolant",
+    "name": "Coolant Engel",
+    "presentation": "1 galón",
+    "price": 2700,
+    "stock": null,
+    "image": "/productos/engel-coolant.webp"
+  }
+]

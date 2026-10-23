@@ -16,3 +16,10 @@
 .feedback { min-width: 0; scroll-margin-block: 24px; }
 .feedback:empty { display: none; }
 .feedback:focus { outline: 2px solid #cfd4d8; outline-offset: 4px; }
+
+.statusActions { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+.statusActions form { flex:1 1 160px; min-width:0; }
+.statusActions button { width:100%; min-height:48px; border:1px solid #ef3038; background:#d91f27; color:#fff; padding:14px 18px; font:inherit; font-weight:800; cursor:pointer; }
+.statusActions > button { flex:1 1 200px; width:auto; background:#171b1f; }
+.statusActions button:disabled { opacity:.55; cursor:not-allowed; }
+.statusActions button:focus-visible { outline:2px solid white; outline-offset:3px; }

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { PASSWORD_REQUIREMENTS, PASSWORD_PATTERN, validateNewPassword } from "./password-policy";
 import ServiceTracker from "./ServiceTracker";
+import ProductCatalog from "./ProductCatalog";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
 const TOKEN_KEY = "jamiro_token";
@@ -741,17 +742,7 @@ export default function Home() {
         </div>
 
         <div className="shop-sections">
-          <article className="catalog-coming-soon">
-            <div className="catalog-symbol">
-              <img src="/logo-jamiro.png" alt="Logo de Taller Multiservicios Jamiro" />
-            </div>
-            <div>
-              <p className="eyebrow"><span /> Productos nuevos</p>
-              <h3>Estamos actualizando nuestro catálogo en línea.</h3>
-              <p>Muy pronto encontrarás aquí todos nuestros productos disponibles, con información clara para elegir con confianza.</p>
-              <span className="coming-soon-badge">Próximamente</span>
-            </div>
-          </article>
+          <ProductCatalog />
 
           <article className="used-parts-panel">
             <div className="used-parts-copy">
