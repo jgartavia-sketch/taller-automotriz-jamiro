@@ -46,5 +46,125 @@
     "price": 2700,
     "stock": null,
     "image": "/productos/engel-coolant.webp"
+  },
+  {
+    "id": "bombillo-floseer-2190",
+    "name": "Bombillo Floseer 2190",
+    "presentation": "Contacto tipo 2190 · unidad",
+    "price": 1700,
+    "stock": 9,
+    "image": "/productos/bombillo-floseer-2190.webp"
+  },
+  {
+    "id": "bombillo-floseer-5230",
+    "name": "Bombillo Floseer 5230",
+    "presentation": "Contacto tipo 5230 · unidad",
+    "price": 500,
+    "stock": 17,
+    "image": "/productos/bombillo-floseer-5230.webp"
+  },
+  {
+    "id": "bombillo-floseer-2690",
+    "name": "Bombillo Floseer 2690",
+    "presentation": "Contacto tipo 2690 · unidad",
+    "price": 1700,
+    "stock": 8,
+    "image": "/productos/bombillo-floseer-2690.webp"
+  },
+  {
+    "id": "bombillo-floseer-4025",
+    "name": "Bombillo Floseer 4025",
+    "presentation": "Contacto tipo 4025 · unidad",
+    "price": 500,
+    "stock": 9,
+    "image": "/productos/bombillo-floseer-4025.webp"
+  },
+  {
+    "id": "bombillo-floseer-p21w",
+    "name": "Bombillo Floseer P21W",
+    "presentation": "Contacto tipo P21W · unidad",
+    "price": null,
+    "stock": 6,
+    "image": "/productos/bombillo-floseer-p21w.webp"
+  },
+  {
+    "id": "bombillo-floseer-3156",
+    "name": "Bombillo Floseer 3156",
+    "presentation": "Contacto tipo 3156 · unidad",
+    "price": 1450,
+    "stock": 10,
+    "image": "/productos/bombillo-floseer-3156.webp"
+  },
+  {
+    "id": "bombillo-floseer-3157",
+    "name": "Bombillo Floseer 3157",
+    "presentation": "Contacto tipo 3157 · unidad",
+    "price": 1250,
+    "stock": 9,
+    "image": "/productos/bombillo-floseer-3157.webp"
+  },
+  {
+    "id": "rotor-distribuidor-festiva",
+    "name": "Rotor de distribuidor Festiva",
+    "presentation": "Unidad",
+    "price": 1700,
+    "stock": 2,
+    "image": "/productos/rotor-distribuidor-festiva.webp"
+  },
+  {
+    "id": "tapa-distribuidor-b13-b14-ga16",
+    "name": "Tapa de distribuidor B13/B14 GA16",
+    "presentation": "Unidad",
+    "price": 6200,
+    "stock": 2,
+    "image": "/productos/tapa-distribuidor-b13-b14-ga16.webp"
+  },
+  {
+    "id": "rotula-crv-kashima",
+    "name": "Rótula de suspensión CRV Kashima",
+    "presentation": "Marca Kashima · unidad",
+    "price": 10600,
+    "stock": 2,
+    "image": "/productos/rotula-crv.webp"
+  },
+  {
+    "id": "rotula-crv-three-five",
+    "name": "Rótula de suspensión CRV Three Five",
+    "presentation": "Marca Three Five · unidad",
+    "price": 13600,
+    "stock": 1,
+    "image": "/productos/rotula-crv.webp"
+  },
+  {
+    "id": "piston-caliper-b13-b14",
+    "name": "Pistón de cáliper B13/B14",
+    "presentation": "Unidad",
+    "price": 11700,
+    "stock": 3,
+    "image": "/productos/piston-caliper-b13-b14.webp"
+  },
+  {
+    "id": "zapatas-honda-civic-crx-84",
+    "name": "Zapatas de freno Honda CIVIC/CRX 84",
+    "presentation": "1 juego de 4 zapatas",
+    "price": 13100,
+    "stock": 1,
+    "image": "/productos/zapatas-honda-civic-crx-84.webp"
+  },
+  {
+    "id": "piston-caliper-16y20w",
+    "name": "Pistón de cáliper 16Y20W",
+    "presentation": "Unidad",
+    "price": 11700,
+    "stock": 4,
+    "image": "/productos/piston-caliper-16y20w.webp"
+  },
+  {
+    "id": "piston-caliper-delantero-16y18w",
+    "name": "Pistón de cáliper delantero 16Y18W",
+    "presentation": "Unidad",
+    "price": 12400,
+    "stock": 4,
+    "image": "/productos/piston-caliper-16y20w.webp"
   }
 ]
