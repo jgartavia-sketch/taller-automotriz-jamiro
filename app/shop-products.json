@@ -5,7 +5,8 @@
     "presentation": "1 litro",
     "price": 5000,
     "stock": 52,
-    "image": "/productos/gulf-20w50.webp"
+    "image": "/productos/gulf-20w50.webp",
+    "category": "aceites"
   },
   {
     "id": "gulf-10w30",
@@ -13,7 +14,8 @@
     "presentation": "1 litro",
     "price": 5000,
     "stock": 13,
-    "image": "/productos/gulf-10w30.webp"
+    "image": "/productos/gulf-10w30.webp",
+    "category": "aceites"
   },
   {
     "id": "gulf-15w40",
@@ -21,7 +23,8 @@
     "presentation": "1 litro",
     "price": 5000,
     "stock": 42,
-    "image": "/productos/gulf-15w40.webp"
+    "image": "/productos/gulf-15w40.webp",
+    "category": "aceites"
   },
   {
     "id": "havoline-cvt",
@@ -29,7 +32,8 @@
     "presentation": "946 ml",
     "price": 7600,
     "stock": 4,
-    "image": "/productos/havoline-cvt.webp"
+    "image": "/productos/havoline-cvt.webp",
+    "category": "aceites"
   },
   {
     "id": "engel-desengrasante",
@@ -37,7 +41,8 @@
     "presentation": "1 galón",
     "price": 4500,
     "stock": null,
-    "image": "/productos/engel-desengrasante.webp"
+    "image": "/productos/engel-desengrasante.webp",
+    "category": "cuidado"
   },
   {
     "id": "engel-coolant",
@@ -45,7 +50,8 @@
     "presentation": "1 galón",
     "price": 2700,
     "stock": null,
-    "image": "/productos/engel-coolant.webp"
+    "image": "/productos/engel-coolant.webp",
+    "category": "cuidado"
   },
   {
     "id": "bombillo-floseer-2190",
@@ -53,7 +59,8 @@
     "presentation": "Contacto tipo 2190 · unidad",
     "price": 1700,
     "stock": 9,
-    "image": "/productos/bombillo-floseer-2190.webp"
+    "image": "/productos/bombillo-floseer-2190.webp",
+    "category": "iluminacion"
   },
   {
     "id": "bombillo-floseer-5230",
@@ -61,7 +68,8 @@
     "presentation": "Contacto tipo 5230 · unidad",
     "price": 500,
     "stock": 17,
-    "image": "/productos/bombillo-floseer-5230.webp"
+    "image": "/productos/bombillo-floseer-5230.webp",
+    "category": "iluminacion"
   },
   {
     "id": "bombillo-floseer-2690",
@@ -69,7 +77,8 @@
     "presentation": "Contacto tipo 2690 · unidad",
     "price": 1700,
     "stock": 8,
-    "image": "/productos/bombillo-floseer-2690.webp"
+    "image": "/productos/bombillo-floseer-2690.webp",
+    "category": "iluminacion"
   },
   {
     "id": "bombillo-floseer-4025",
@@ -77,7 +86,8 @@
     "presentation": "Contacto tipo 4025 · unidad",
     "price": 500,
     "stock": 9,
-    "image": "/productos/bombillo-floseer-4025.webp"
+    "image": "/productos/bombillo-floseer-4025.webp",
+    "category": "iluminacion"
   },
   {
     "id": "bombillo-floseer-p21w",
@@ -85,7 +95,8 @@
     "presentation": "Contacto tipo P21W · unidad",
     "price": null,
     "stock": 6,
-    "image": "/productos/bombillo-floseer-p21w.webp"
+    "image": "/productos/bombillo-floseer-p21w.webp",
+    "category": "iluminacion"
   },
   {
     "id": "bombillo-floseer-3156",
@@ -93,7 +104,8 @@
     "presentation": "Contacto tipo 3156 · unidad",
     "price": 1450,
     "stock": 10,
-    "image": "/productos/bombillo-floseer-3156.webp"
+    "image": "/productos/bombillo-floseer-3156.webp",
+    "category": "iluminacion"
   },
   {
     "id": "bombillo-floseer-3157",
@@ -101,7 +113,8 @@
     "presentation": "Contacto tipo 3157 · unidad",
     "price": 1250,
     "stock": 9,
-    "image": "/productos/bombillo-floseer-3157.webp"
+    "image": "/productos/bombillo-floseer-3157.webp",
+    "category": "iluminacion"
   },
   {
     "id": "rotor-distribuidor-festiva",
@@ -109,7 +122,8 @@
     "presentation": "Unidad",
     "price": 1700,
     "stock": 2,
-    "image": "/productos/rotor-distribuidor-festiva.webp"
+    "image": "/productos/rotor-distribuidor-festiva.webp",
+    "category": "encendido"
   },
   {
     "id": "tapa-distribuidor-b13-b14-ga16",
@@ -117,7 +131,8 @@
     "presentation": "Unidad",
     "price": 6200,
     "stock": 2,
-    "image": "/productos/tapa-distribuidor-b13-b14-ga16.webp"
+    "image": "/productos/tapa-distribuidor-b13-b14-ga16.webp",
+    "category": "encendido"
   },
   {
     "id": "rotula-crv-kashima",
@@ -125,7 +140,8 @@
     "presentation": "Marca Kashima · unidad",
     "price": 10600,
     "stock": 2,
-    "image": "/productos/rotula-crv.webp"
+    "image": "/productos/rotula-crv.webp",
+    "category": "suspension"
   },
   {
     "id": "rotula-crv-three-five",
@@ -133,7 +149,8 @@
     "presentation": "Marca Three Five · unidad",
     "price": 13600,
     "stock": 1,
-    "image": "/productos/rotula-crv.webp"
+    "image": "/productos/rotula-crv.webp",
+    "category": "suspension"
   },
   {
     "id": "piston-caliper-b13-b14",
@@ -141,7 +158,8 @@
     "presentation": "Unidad",
     "price": 11700,
     "stock": 3,
-    "image": "/productos/piston-caliper-b13-b14.webp"
+    "image": "/productos/piston-caliper-b13-b14.webp",
+    "category": "frenos"
   },
   {
     "id": "zapatas-honda-civic-crx-84",
@@ -149,7 +167,8 @@
     "presentation": "1 juego de 4 zapatas",
     "price": 13100,
     "stock": 1,
-    "image": "/productos/zapatas-honda-civic-crx-84.webp"
+    "image": "/productos/zapatas-honda-civic-crx-84.webp",
+    "category": "frenos"
   },
   {
     "id": "piston-caliper-16y20w",
@@ -157,7 +176,8 @@
     "presentation": "Unidad",
     "price": 11700,
     "stock": 4,
-    "image": "/productos/piston-caliper-16y20w.webp"
+    "image": "/productos/piston-caliper-16y20w.webp",
+    "category": "frenos"
   },
   {
     "id": "piston-caliper-delantero-16y18w",
@@ -165,6 +185,7 @@
     "presentation": "Unidad",
     "price": 12400,
     "stock": 4,
-    "image": "/productos/piston-caliper-16y20w.webp"
+    "image": "/productos/piston-caliper-16y20w.webp",
+    "category": "frenos"
   }
 ]

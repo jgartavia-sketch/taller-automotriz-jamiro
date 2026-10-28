@@ -60,7 +60,7 @@ export default function Home() {
   const isRegistration = pathname === "/registro";
   const isServices = pathname === "/servicios";
   const isShop = pathname === "/tienda";
-  const isAbout = pathname === "/nosotros" || pathname === "/contacto";
+  const isAbout = pathname === "/nosotros";
   const isLogin = pathname === "/login";
   const isAccount = pathname === "/mi-cuenta";
   const [menuOpen, setMenuOpen] = useState(false);
@@ -368,12 +368,11 @@ export default function Home() {
           <Link className={isServices ? "active" : ""} href="/servicios" onClick={() => setMenuOpen(false)}>Servicios</Link>
           <Link className={isShop ? "active" : ""} href="/tienda" onClick={() => setMenuOpen(false)}>Tienda</Link>
           <Link className={isAbout ? "active" : ""} href="/nosotros" onClick={() => setMenuOpen(false)}>Nosotros</Link>
-          <Link href="/contacto" onClick={() => setMenuOpen(false)}>Contacto</Link>
-          <Link className="mobile-quote" href="/servicios#solicitar-servicio" onClick={() => setMenuOpen(false)}>Cotizar ahora</Link>
+          <Link className="mobile-quote" href="/registro" onClick={() => setMenuOpen(false)}>Crear cuenta</Link>
         </nav>
 
         <div className="header-actions">
-          <Link className="button button-small" href="/servicios#solicitar-servicio">Cotizar ahora</Link>
+          <Link className="button button-small" href="/registro">Crear cuenta</Link>
           <Link className="account-link" onClick={() => setMenuOpen(false)} href={profile ? "/mi-cuenta" : "/login"}>{profile ? "Mi cuenta" : "Ingresar"}</Link>
         </div>
       </header>
@@ -388,8 +387,8 @@ export default function Home() {
             Diagnóstico preciso, servicio transparente y soluciones que te devuelven a la carretera con total confianza.
           </p>
           <div className="hero-actions">
-            <Link className="button" href="/servicios#solicitar-servicio">Solicitar cotización <b>→</b></Link>
-            <Link className="button button-ghost" href="/tienda">Explorar tienda</Link>
+            <Link className="button" href="/registro">Crear cuenta <b>→</b></Link>
+            <Link className="button button-ghost" href="/login">Ingresar a mi cuenta</Link>
           </div>
           <div className="trust-row">
             <span><b>✓</b> Calidad garantizada</span>
@@ -738,7 +737,7 @@ export default function Home() {
       {isShop && <section className="section shop page-section" id="tienda">
         <div className="section-heading">
           <div><p className="eyebrow"><span /> Tienda Jamiro</p><h2>Productos y repuestos para seguir avanzando.</h2></div>
-          <p>Estamos preparando una experiencia más clara para que encontrés lo que tu vehículo necesita.</p>
+          <p>Elegí una categoría, encontrá tu producto y coordiná el pedido con nuestro equipo.</p>
         </div>
 
         <div className="shop-sections">
